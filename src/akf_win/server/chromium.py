@@ -28,7 +28,7 @@ class ChromiumService(rpyc.Service):  # type: ignore[misc]
         Expose both the Playwright instance and the browser context to the client.
         """
         self.playwright = sync_playwright().start()
-        
+
         # Although this may be `None` internally, the expectation is that
         # RPyC clients will only ever see this as non-`None` values.
         self.browser: BrowserContext | None = None
