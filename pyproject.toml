@@ -1,0 +1,27 @@
+[project]
+name = "akf-windows"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "akflib",
+    "pytest-playwright>=0.6.2",
+    "rpyc>=6.0.1",
+]
+
+[tool.flake8]
+extend_ignore = [
+  "E501", # silence "line too long", i don't care lol
+  "E203" # silence "whitespace before :"
+]
+
+[tool.mypy]
+strict_optional = true
+
+[tool.isort]
+profile = "black"
+
+[tool.uv.sources]
+case-uco-lib = { git = "https://github.com/lgactna/CASE-pydantic" }
+akflib = { git = "https://github.com/lgactna/akflib.git" }
