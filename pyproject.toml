@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-akf-agent = "akf_win.server:main"
+akf-agent = "akf_windows.server:main"
 
 [build-system]
 requires = ["hatchling"]
