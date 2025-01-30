@@ -8,7 +8,7 @@ from typing import Literal
 import rpyc
 from playwright.sync_api import BrowserContext, sync_playwright
 
-from akf_win.server.util import get_appdata_local_path
+from akf_windows.server.util import get_appdata_local_path
 
 logger = logging.getLogger(__name__)
 
