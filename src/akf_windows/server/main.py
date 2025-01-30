@@ -126,3 +126,10 @@ def main() -> None:
     )
     logger.info("Starting Windows agent service on port 18861")
     server.start()
+    
+    # Teardown - the server has terminated and all subprocesses should be killed
+    logger.info("DispatchService received interrupt, tearing down services")
+    service: DispatchService = server.service
+    for subservice in service.running_services.values():
+        logger.info(f"Killing process with PID {subservice.process.pid}")
+        subservice.process.kill()

@@ -16,6 +16,10 @@ class ChromiumServiceAPI(WindowsServiceAPI):
 
     You can freely interact with the remote browser instance using the `browser`
     instance attribute.
+    
+    TODO: Even though we expose `BrowserContext`, we should still have a small
+    number of "concrete" methods, like `goto()`, which leverage the CASE
+    library and automatically create/return CASE entries. 
     """
 
     def __init__(self, host: str, port: int) -> None:
@@ -42,13 +46,16 @@ class ChromiumServiceAPI(WindowsServiceAPI):
 
 
 if __name__ == "__main__":
-    # python -m akf.agents.windows.chromium
+    # Test the client.
+    # python -m akf_windows.api.chromium
 
-    # Test the client
-    # with ChromiumServiceAPI.auto_connect("localhost") as chromium:
-    with ChromiumServiceAPI.auto_connect("192.168.56.102") as chromium:
-        # Open a new Edge browser
-        chromium.set_browser("chrome")
+    # auto-connect doesn't work, but standard connection does?
+    # with ChromiumServiceAPI("localhost", 18861) as chromium:
+    #     chromium.set_browser("msedge")
+    with ChromiumServiceAPI.auto_connect("localhost") as chromium:
+        chromium.set_browser("msedge")
+    # with ChromiumServiceAPI.auto_connect("192.168.56.102") as chromium:
+    #     chromium.set_browser("chrome")
         assert chromium.browser is not None
 
         page = chromium.browser.new_page()
