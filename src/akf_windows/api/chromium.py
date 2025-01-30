@@ -45,9 +45,10 @@ if __name__ == "__main__":
     # python -m akf.agents.windows.chromium
 
     # Test the client
-    with ChromiumServiceAPI.auto_connect("localhost") as chromium:
+    # with ChromiumServiceAPI.auto_connect("localhost") as chromium:
+    with ChromiumServiceAPI.auto_connect("192.168.56.102") as chromium:
         # Open a new Edge browser
-        chromium.set_browser("msedge")
+        chromium.set_browser("chrome")
         assert chromium.browser is not None
 
         page = chromium.browser.new_page()
