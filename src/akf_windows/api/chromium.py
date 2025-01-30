@@ -46,12 +46,9 @@ if __name__ == "__main__":
 
     # Test the client
     with ChromiumServiceAPI.auto_connect("localhost") as chromium:
-
         # Open a new Edge browser
         chromium.set_browser("msedge")
         assert chromium.browser is not None
-
-        exit()
 
         page = chromium.browser.new_page()
 
