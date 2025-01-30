@@ -5,11 +5,12 @@ The API for the RPyC service exposing Microsoft Edge.
 import time
 from typing import Literal
 
-from akflib.core.agents.client import AKFServiceAPI
 from playwright.sync_api import BrowserContext
 
+from akf_windows.api._base import WindowsServiceAPI
 
-class ChromiumServiceAPI(AKFServiceAPI):
+
+class ChromiumServiceAPI(WindowsServiceAPI):
     """
     The service API for interacting with Microsoft Edge using Playwright.
 
@@ -44,10 +45,13 @@ if __name__ == "__main__":
     # python -m akf.agents.windows.chromium
 
     # Test the client
-    with ChromiumServiceAPI("localhost", 18861) as chromium:
+    with ChromiumServiceAPI.auto_connect("localhost") as chromium:
+
         # Open a new Edge browser
         chromium.set_browser("msedge")
         assert chromium.browser is not None
+
+        exit()
 
         page = chromium.browser.new_page()
 

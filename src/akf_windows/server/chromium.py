@@ -6,6 +6,7 @@ import logging
 from typing import Literal
 
 import rpyc
+from akflib.core.agents.server import AKFService
 from playwright.sync_api import BrowserContext, sync_playwright
 
 from akf_windows.server.util import get_appdata_local_path
@@ -13,8 +14,7 @@ from akf_windows.server.util import get_appdata_local_path
 logger = logging.getLogger(__name__)
 
 
-# ignore: mypy does not recognize the `rpyc.Service` class
-class ChromiumService(rpyc.Service):  # type: ignore[misc]
+class ChromiumService(AKFService):
     """
     Allows you to interact with a Microsoft Edge browser instance.
 
