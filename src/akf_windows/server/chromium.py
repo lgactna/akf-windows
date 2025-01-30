@@ -5,6 +5,7 @@ Interact with Chromium browsers using Playwright.
 import logging
 from typing import Literal
 
+import psutil
 import rpyc
 from akflib.core.agents.server import AKFService
 from playwright.sync_api import BrowserContext, sync_playwright
@@ -77,6 +78,29 @@ class ChromiumService(AKFService):
         )
 
         return self.browser
+
+    def exposed_kill_edge(self) -> None:
+        """
+        Kill Edge process instances by name.
+
+        By default, Edge has a feature called "startup boost" that keeps a background
+        process running after the GUI itself has closed. This prevents another
+        browser window with the same profile from being opened and raises fairly
+        confusing errors from Playwright ("Target page, context or browser has been
+        closed").
+
+        This method kills all Edge processes by name, which effectively bypasses
+        the "startup boost" feature. In general, this is only necessary if Edge
+        has been opened through other means (e.g. manually).
+
+        """
+        for proc in psutil.process_iter(["name"]):
+            if proc.info["name"] == "msedge.exe":
+                logger.info(f"Killing Edge process {proc.pid}")
+                try:
+                    proc.kill()
+                except psutil.NoSuchProcess:
+                    logger.info(f"Process {proc.pid} is already dead...")
 
 
 if __name__ == "__main__":

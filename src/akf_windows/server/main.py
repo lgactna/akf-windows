@@ -87,7 +87,14 @@ class DispatchService(rpyc.Service):  # type: ignore[misc]
         process = mp.Process(target=start_subservice, args=(server,))
         process.start()
 
+        # Internally, `port` is the second element of the tuple returned by
+        # `socket.getsockname()`. As per https://docs.python.org/3/library/socket.html,
+        # this is the port number that the socket is bound to for both AF_INET
+        # and AF_INET6 sockets. This is not true of the other address families,
+        # but should be a valid assumption for our case.
         port = server.port
+        assert isinstance(port, int)
+
         logger.info(f"Started service {service_name} on port {port}")
         # TODO: does two processes having a handle to the same service do
         # what i expected it to do?
@@ -127,7 +134,7 @@ def main() -> None:
     )
     logger.info("Starting Windows agent service on port 18861")
     server.start()
-    
+
     # Teardown - the server has terminated and all subprocesses should be killed
     logger.info("DispatchService received interrupt, tearing down services")
     service: DispatchService = server.service

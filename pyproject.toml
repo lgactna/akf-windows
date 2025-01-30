@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "akflib",
+    "psutil>=6.1.1",
     "pytest-playwright>=0.6.2",
     "rpyc>=6.0.1",
 ]
