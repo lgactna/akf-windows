@@ -27,6 +27,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger()
 
+# TODO: this can be automatically built at runtime
 AVAILABLE_SERVICES = {
     "ChromiumService": ChromiumService,
 }
