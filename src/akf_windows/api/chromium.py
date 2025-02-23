@@ -68,9 +68,9 @@ if __name__ == "__main__":
     # auto-connect doesn't work, but standard connection does?
     # with ChromiumServiceAPI("localhost", 18861) as chromium:
     # with ChromiumServiceAPI.auto_connect("localhost") as chromium:
-    with ChromiumServiceAPI.auto_connect("192.168.56.102") as chromium:
+    with ChromiumServiceAPI.auto_connect("192.168.50.4") as chromium:
         chromium.kill_edge()
-        chromium.set_browser("chrome")
+        chromium.set_browser("msedge")
         assert chromium.browser is not None
 
         page = chromium.browser.new_page()
