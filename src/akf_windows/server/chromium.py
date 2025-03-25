@@ -10,7 +10,7 @@ import rpyc
 from akflib.core.agents.server import AKFService
 from playwright.sync_api import BrowserContext, sync_playwright
 
-from akf_windows.server.util import get_appdata_local_path
+from akf_windows.server._util import get_appdata_local_path
 
 logger = logging.getLogger(__name__)
 
