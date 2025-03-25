@@ -7,6 +7,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "akflib" },
+    { name = "caselib" },
     { name = "psutil" },
     { name = "pytest-playwright" },
     { name = "rpyc" },
@@ -15,6 +16,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "akflib", git = "https://github.com/lgactna/akflib.git" },
+    { name = "caselib", git = "https://github.com/lgactna/CASE-pydantic" },
     { name = "psutil", specifier = ">=6.1.1" },
     { name = "pytest-playwright", specifier = ">=0.6.2" },
     { name = "rpyc", specifier = ">=6.0.1" },

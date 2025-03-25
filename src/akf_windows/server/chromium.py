@@ -1,5 +1,5 @@
 """
-Interact with Chromium browsers using Playwright.
+Implementation of the RPyC service for interacting with Chromium browsers using Playwright.
 """
 
 import logging

@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "akflib",
+    "caselib",
     "psutil>=6.1.1",
     "pytest-playwright>=0.6.2",
     "rpyc>=6.0.1",
@@ -23,6 +24,9 @@ extend_ignore = [
   "E501", # silence "line too long", i don't care lol
   "E203" # silence "whitespace before :"
 ]
+exclude = [
+  "src/akf_windows/server/prefetch",
+]
 
 [tool.mypy]
 strict_optional = true
@@ -31,5 +35,5 @@ strict_optional = true
 profile = "black"
 
 [tool.uv.sources]
-case-uco-lib = { git = "https://github.com/lgactna/CASE-pydantic" }
 akflib = { git = "https://github.com/lgactna/akflib.git" }
+caselib = { git = "https://github.com/lgactna/CASE-pydantic" }
