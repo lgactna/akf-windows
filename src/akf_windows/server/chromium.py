@@ -104,9 +104,6 @@ class ChromiumService(AKFService):
 
 
 if __name__ == "__main__":
-    # cd agents/windows
-    # python -m browser.chromium
-
     # Start the server for testing. All attributes of the service are exposed,
     # since we assume that connections are trusted.
     from rpyc.utils.server import ThreadedServer

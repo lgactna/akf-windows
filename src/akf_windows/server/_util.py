@@ -26,3 +26,15 @@ def get_appdata_local_path() -> Path:
         raise Exception("Could not find the LOCALAPPDATA environment variable")
 
     return Path(appdata_dir).resolve()
+
+def get_systemroot_path() -> Path:
+    """
+    Get the path to the AppData directory for the current user.
+    """
+    appdata_dir = os.getenv("SYSTEMROOT")
+    assert appdata_dir is not None
+
+    if appdata_dir is None:
+        raise Exception("Could not find the SYSTEMROOT environment variable")
+
+    return Path(appdata_dir).resolve()

@@ -17,14 +17,19 @@
 # Contact: <accidentalassist@gmail.com>
 #
 # This code has been modified from the original to reflect akf_windows's module
-# structure, as well as minor edits to comply with linting.
+# structure, as well as minor edits to comply with linting. The timestamps have
+# also been stored as native timestamps in UTC. Timestamps on NTFS are always
+# stored in UTC, but FAT timestamps are stored in local time. The modifications
+# here make a best-effort attempt to determine which filesystem is currently active
+# and generate timezone-aware timestamps accordingly.
 
 
 import ntpath
 import os
 import struct
 import tempfile
-from datetime import datetime, timedelta
+import win32api
+from datetime import datetime, timedelta, UTC
 
 from akf_windows.server.prefetch.utils import DecompressWin10
 
@@ -371,8 +376,22 @@ class Prefetch(object):
             print("{:>4}: {}".format(resource[0], resource[1]))
         print()
 
+def determine_filesystem_type() -> str:
+    return win32api.GetVolumeInformation("C:\\")[4]
 
 def convertTimestamp(timestamp):
     # Timestamp is a Win32 FILETIME value
     # This function returns that value in a human-readable format
-    return str(datetime(1601, 1, 1) + timedelta(microseconds=timestamp / 10.0))
+    #
+    # See https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+
+    fs_type = determine_filesystem_type()
+    if fs_type == "FAT":
+        # FAT timestamps are stored in local time - generate an aware timestamp
+        # in the local timezone
+        local_timezone = datetime.now().astimezone().tzinfo        
+        return datetime(1601, 1, 1, tzinfo=local_timezone) + timedelta(microseconds=timestamp / 10.0)
+    
+    # NTFS timestamps are stored in UTC - generate an aware timestamp in UTC.
+    # If we're using another filesystem, we'll just assume it's UTC.
+    return datetime(1601, 1, 1, tzinfo=UTC) + timedelta(microseconds=timestamp / 10.0)
