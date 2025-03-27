@@ -28,14 +28,16 @@ import ntpath
 import os
 import struct
 import tempfile
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+
 import win32api
-from datetime import datetime, timedelta, UTC
 
 from akf_windows.server.prefetch.utils import DecompressWin10
 
 
 class Prefetch(object):
-    def __init__(self, infile):
+    def __init__(self, infile: Path) -> None:
         self.pFileName = infile
 
         with open(infile, "rb") as f:
@@ -376,8 +378,10 @@ class Prefetch(object):
             print("{:>4}: {}".format(resource[0], resource[1]))
         print()
 
+
 def determine_filesystem_type() -> str:
     return win32api.GetVolumeInformation("C:\\")[4]
+
 
 def convertTimestamp(timestamp):
     # Timestamp is a Win32 FILETIME value
@@ -389,9 +393,11 @@ def convertTimestamp(timestamp):
     if fs_type == "FAT":
         # FAT timestamps are stored in local time - generate an aware timestamp
         # in the local timezone
-        local_timezone = datetime.now().astimezone().tzinfo        
-        return datetime(1601, 1, 1, tzinfo=local_timezone) + timedelta(microseconds=timestamp / 10.0)
-    
+        local_timezone = datetime.now().astimezone().tzinfo
+        return datetime(1601, 1, 1, tzinfo=local_timezone) + timedelta(
+            microseconds=timestamp / 10.0
+        )
+
     # NTFS timestamps are stored in UTC - generate an aware timestamp in UTC.
     # If we're using another filesystem, we'll just assume it's UTC.
     return datetime(1601, 1, 1, tzinfo=UTC) + timedelta(microseconds=timestamp / 10.0)

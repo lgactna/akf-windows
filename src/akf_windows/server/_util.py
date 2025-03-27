@@ -27,6 +27,7 @@ def get_appdata_local_path() -> Path:
 
     return Path(appdata_dir).resolve()
 
+
 def get_systemroot_path() -> Path:
     """
     Get the path to the AppData directory for the current user.

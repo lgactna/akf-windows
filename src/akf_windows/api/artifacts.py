@@ -19,7 +19,7 @@ class WindowsArtifactServiceAPI(WindowsServiceAPI):
     instance attribute. Note that because pyautogui is a module, all connections
     to the same service will "share" the same resources/configuration. You can
     spin up multiple instances of this service to have separate configurations.
-    You can do this by simply calling `start_service()` on the dispatch service.    
+    You can do this by simply calling `start_service()` on the dispatch service.
 
     You can freely interact with the remote browser instance using the `browser`
     instance attribute.
@@ -37,8 +37,10 @@ class WindowsArtifactServiceAPI(WindowsServiceAPI):
             if the file does not exist or is empty.
         """
         return self.rpyc_conn.root.collect_prefetch_file(prefetch_path)
-    
-    def collect_prefetch_dir(self, prefetch_folder: Path | None = None, glob: str = "*.pf") -> list[WindowsPrefetch]:
+
+    def collect_prefetch_dir(
+        self, prefetch_folder: Path | None = None, glob: str = "*.pf"
+    ) -> list[WindowsPrefetch]:
         """
         Collect WindowsPrefetch objects from the prefetch directory.
 
@@ -47,8 +49,7 @@ class WindowsArtifactServiceAPI(WindowsServiceAPI):
         :param glob: The glob pattern to use for finding prefetch files.
         :return: A list of WindowsPrefetch objects representing the prefetch files.
         """
-        return self.rpyc_conn.root.collect_prefetch_dir(prefetch_folder, glob)
-        
+        return self.rpyc_conn.root.collect_prefetch_dir(prefetch_folder, glob)  # type: ignore[no-any-return]
 
 
 if __name__ == "__main__":
@@ -59,4 +60,3 @@ if __name__ == "__main__":
     # with WindowsArtifactServiceAPI.auto_connect("localhost") as win_artifact:
     with WindowsArtifactServiceAPI("localhost", 18861) as win_artifact:
         print(win_artifact.collect_prefetch_dir(glob="cmd.exe*"))
-
