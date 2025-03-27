@@ -10,6 +10,11 @@ Vagrant.configure("2") do |config|
     vb.gui = true
     vb.memory = 4096
     vb.customize ["modifyvm", :id, "--vram", "128"]
+
+    # Set the resolution to 1280x720 (technically optional, but good for
+    # consistent coordinate-based actions like mouse movements)
+    vb.customize ["setextradata", :id, "CustomVideoMode1", "1280x720x32"]
+    vb.customize ["setextradata", :id, "GUI/LastGuestSizeHint", "1280,720"]
   end    
 
   # First network interface (NAT) is default
