@@ -27,7 +27,7 @@ class WindowsArtifactStartModule(AKFModule[NullArgs, NullConfig]):
       WindowsArtifactServiceAPI on execution.
     """
 
-    aliases = ["win_artifact_start"]
+    aliases = ["artifact_service_start"]
     arg_model = NullArgs
     config_model = NullConfig
 
@@ -43,19 +43,17 @@ class WindowsArtifactStartModule(AKFModule[NullArgs, NullConfig]):
             logger.warning("WindowsArtifactServiceAPI object already exists, skipping")
             return ""
 
-        if "akflib.hypervisor" not in state:
+        hypervisor_var = cls.get_hypervisor_var(state)
+        if hypervisor_var is None:
             raise ValueError(
-                "State variable `akflib.hypervisor` not available, can't determine IP"
+                "State variable `akflib.hypervisor_var` not available, can't determine IP"
             )
-
-        # Get required variable names
-        hypervisor_var = state["akflib.hypervisor"]
 
         # Set new state variables
         state["akf_windows.artifacts.artifact_service"] = "win_artifact"
 
         return auto_format(
-            f"win_artifact = WindowsArtifactServiceAPI.auto_connect({hypervisor_var}.get_maintenance_ip())\n",
+            f"win_artifact = WindowsArtifactServiceAPI.auto_connect({hypervisor_var}.get_maintenance_ip())",
             state,
         )
 
@@ -65,18 +63,16 @@ class WindowsArtifactStartModule(AKFModule[NullArgs, NullConfig]):
         args: NullArgs,
         config: NullConfig,
         state: dict[str, Any],
-        bundle: AKFBundle | None = None,
     ) -> None:
         if "akf_windows.artifacts.artifact_service" in state:
             logger.warning("WindowsArtifactServiceAPI object already exists, skipping")
             return
 
-        if "akflib.hypervisor" not in state:
+        hypervisor = cls.get_hypervisor(state)
+        if hypervisor is None:
             raise ValueError(
                 "State variable `akflib.hypervisor` not available, can't determine IP"
             )
-
-        hypervisor = state["akflib.hypervisor"]
         assert isinstance(hypervisor, HypervisorABC)
 
         win_artifact = WindowsArtifactServiceAPI.auto_connect(
@@ -96,7 +92,7 @@ class WindowsArtifactStopModule(AKFModule[NullArgs, NullConfig]):
       cleared from state.
     """
 
-    aliases = ["win_artifact_stop"]
+    aliases = ["artifact_service_stop"]
     arg_model = NullArgs
     config_model = NullConfig
 
@@ -116,7 +112,7 @@ class WindowsArtifactStopModule(AKFModule[NullArgs, NullConfig]):
         del state["akf_windows.artifacts.artifact_service"]
 
         return auto_format(
-            f"{var_name}.rpyc_conn.close()\n",
+            f"{var_name}.rpyc_conn.close()",
             state,
         )
 
@@ -187,7 +183,7 @@ class PrefetchModule(AKFModule[PrefetchModuleArgs, NullConfig]):
             # Use the existing object.
             win_artifact_var = state["akf_windows.artifacts.artifact_service"]
 
-        result += f"prefetch_objs = {win_artifact_var}.collect_prefetch_dir({args.prefetch_folder})\n"
+        result += f"prefetch_objs = {win_artifact_var}.collect_prefetch_dir({args.prefetch_folder})"
 
         return auto_format(
             result,

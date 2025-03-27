@@ -26,7 +26,7 @@ extend_ignore = [
   "E203" # silence "whitespace before :"
 ]
 exclude = [
-  "src/akf_windows/server/prefetch",
+  "src/akf_windows/server/prefetch", # this isn't my code, and it doesn't matter
 ]
 
 [tool.mypy]
