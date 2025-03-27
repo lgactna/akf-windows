@@ -38,15 +38,16 @@ class WindowsArtifactServiceAPI(WindowsServiceAPI):
         """
         return self.rpyc_conn.root.collect_prefetch_file(prefetch_path)
     
-    def collect_prefetch_dir(self, prefetch_folder: Path | None = None) -> list[WindowsPrefetch]:
+    def collect_prefetch_dir(self, prefetch_folder: Path | None = None, glob: str = "*.pf") -> list[WindowsPrefetch]:
         """
         Collect WindowsPrefetch objects from the prefetch directory.
 
         :param prefetch_folder: The path to the prefetch folder. Defaults to the
             system prefetch folder.
+        :param glob: The glob pattern to use for finding prefetch files.
         :return: A list of WindowsPrefetch objects representing the prefetch files.
         """
-        return self.rpyc_conn.root.collect_prefetch_dir(prefetch_folder)
+        return self.rpyc_conn.root.collect_prefetch_dir(prefetch_folder, glob)
         
 
 
@@ -54,8 +55,8 @@ if __name__ == "__main__":
     # Test the client.
     # python -m akf_windows.api.autogui
 
-    # with PyAutoGuiServiceAPI.auto_connect("192.168.50.4") as autogui:
-    # with PyAutoGuiServiceAPI.auto_connect("localhost") as autogui:
+    # with WindowsArtifactServiceAPI.auto_connect("192.168.50.4") as win_artifact:
+    # with WindowsArtifactServiceAPI.auto_connect("localhost") as win_artifact:
     with WindowsArtifactServiceAPI("localhost", 18861) as win_artifact:
-        print(win_artifact.collect_prefetch_dir())
+        print(win_artifact.collect_prefetch_dir(glob="cmd.exe*"))
 

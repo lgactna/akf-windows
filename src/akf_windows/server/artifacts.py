@@ -121,8 +121,8 @@ class WindowsArtifactService(AKFService):
             volume=volume,
             accessedDirectory=directories,
             accessedFile=files,
-            firstRun=self.timestamps[-1] if self.timestamps else None,
-            lastRun=self.timestamps[0] if self.timestamps else None,
+            firstRun=prefetch_obj.timestamps[-1] if prefetch_obj.timestamps else None,
+            lastRun=prefetch_obj.timestamps[0] if prefetch_obj.timestamps else None,
             timesExecuted=prefetch_obj.runCount,
             applicationFileName=prefetch_obj.executableName,
             prefetchHash=prefetch_obj.hash
@@ -142,24 +142,25 @@ class WindowsArtifactService(AKFService):
         """
         return self._parse_single_prefetch_file(prefetch_path)
 
-    def exposed_collect_prefetch_dir(self, prefetch_folder: Path | None = None) -> list[WindowsPrefetch]:
+    def exposed_collect_prefetch_dir(self, prefetch_folder: Path | None = None, glob: str = "*.pf") -> list[WindowsPrefetch]:
         """
         Scan the machine for Prefetch files and generate a list of `WindowsPrefetch`
         objects.
         
         :param prefetch_folder: The path to the prefetch folder. Defaults to the
             system prefetch folder.
+        :param glob: The glob pattern to use for finding prefetch files.
         :return: A list of WindowsPrefetch objects representing the prefetch files.
         """
         
         # Find the default prefetch folder
         if prefetch_folder is None:
             prefetch_folder = (get_systemroot_path() / "Prefetch").resolve()
-        logger.info(f"Scanning for Prefetch files in {prefetch_folder}")
+        logger.info(f"Scanning for Prefetch files in {prefetch_folder}, {glob=}")
         
         # Collect all prefetch files
         result: list[WindowsPrefetch] = []
-        for prefetch_file in prefetch_folder.glob("*.pf"):
+        for prefetch_file in prefetch_folder.glob(glob):
             pf = self._parse_single_prefetch_file(prefetch_file)
             if pf is not None:
                 result.append(pf)
