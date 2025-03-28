@@ -5,9 +5,12 @@ This class should be subclassed by all API classes for the Windows agent. It
 automatically connects to the base DispatchService as needed.
 """
 
+import logging
 from typing import ClassVar, Type, TypeVar
 
 from akflib.core.agents.client import AKFServiceAPI
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound="WindowsServiceAPI")
 
@@ -61,13 +64,39 @@ class WindowsServiceAPI(AKFServiceAPI):
             )
 
     @classmethod
-    def auto_connect(cls: Type[T], host: str) -> T:
+    def auto_connect(
+        cls: Type[T], host: str, port: int = 18861, wait_until_ready: bool = True
+    ) -> T:
         """
         Automatically connect to the corresponding subservice, assuming that the
         `DispatchService` is running on the default port.
+
+        :param host: The host to connect to.
+        :param port: The port to connect to. The default port is 18861, and should
+            be used in nearly all cases.
+        :param wait_until_ready: If True, wait indefinitely until the port is
+            available.
+        :return: An instance of the service API class.
         """
+        # If a timeout is specified, wait until the dispatch service port is
+        # available.
+        #
+        # Attempting to connect to the agent as soon as the Guest Additions
+        # runlevel is "desktop" may sometimes fail, as the agent needs some time
+        # to get started.
+
         # Assumed port 18861
-        with DispatchServiceAPI(host, 18861) as dispatch:
-            port = dispatch.start_service(cls.related_service)
-            print(port)
-            return cls(host, port)
+        while True:
+            try:
+                logger.info(
+                    f"Attempting to connect to the dispatch service at {host}:{port}"
+                )
+                with DispatchServiceAPI(host, port) as dispatch:
+                    port = dispatch.start_service(cls.related_service)
+                    logger.info(f"{cls.related_service} is running on port {port}")
+                    return cls(host, port)
+            except TimeoutError:
+                if not wait_until_ready:
+                    raise TimeoutError("Dispatch service timed out")
+
+                logger.info("Dispatch service timed out, trying again")
