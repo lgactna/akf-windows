@@ -15,7 +15,7 @@ actions:
   - name: Instantiate a hypervisor object tied to a specific virtual machine
     module: akflib.modules.vbox.VBoxCreateModule
     args:
-      machine_name: "akf-windows_2"
+      machine_name: "akf-windows-1"
   - name: Start the virtual machine
     module: akflib.modules.vbox.VBoxStartMachineModule
 
