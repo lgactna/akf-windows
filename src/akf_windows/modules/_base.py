@@ -2,6 +2,7 @@
 Various frequently-reused utility functions.
 """
 
+import abc
 import logging
 from typing import Any, ClassVar, Type
 
@@ -12,6 +13,7 @@ from akf_windows.api._base import WindowsServiceAPI
 
 logger = logging.getLogger(__name__)
 
+import abc
 
 class ServiceModule(AKFModule[NullArgs, NullConfig]):
     """
@@ -27,6 +29,9 @@ class ServiceModule(AKFModule[NullArgs, NullConfig]):
     arg_model = NullArgs
     config_model = NullConfig
 
+    aliases: ClassVar[list[str]]
+    dependencies: ClassVar[set[str]]
+
     state_var: ClassVar[str]
     service_api_class: ClassVar[Type[WindowsServiceAPI]]
     service_api_var_name: ClassVar[str]
@@ -37,13 +42,9 @@ class ServiceModule(AKFModule[NullArgs, NullConfig]):
         """
         super().__init_subclass__()
 
-        REQUIRED_ATTRIBUTES = ["state_var", "service_api_class"]
-        for attr in REQUIRED_ATTRIBUTES:
-            if not hasattr(cls, attr):
-                raise TypeError(
-                    f"Can't instantiate abstract class {cls.__name__} "
-                    f"without required attribute '{attr}'"
-                )
+        REQUIRED_ATTRIBUTES = ["state_var", "service_api_class", "service_api_var_name"]
+        cls.check_required_attributes(cls, REQUIRED_ATTRIBUTES)
+                
 
     @classmethod
     def api_name(cls) -> str:
@@ -57,7 +58,13 @@ class ServiceStartModule(ServiceModule):
     If creating your service API object is as simple as creating an RPyC connection
     and adding it to the state dictionary, this class will handle that for you.
     """
-
+    aliases: ClassVar[list[str]]
+    dependencies: ClassVar[set[str]]
+    
+    state_var: ClassVar[str]
+    service_api_class: ClassVar[Type[WindowsServiceAPI]]
+    service_api_var_name: ClassVar[str]
+    
     @classmethod
     def generate_code(
         cls, args: NullArgs, config: NullConfig, state: dict[str, Any]
@@ -108,6 +115,12 @@ class ServiceStopModule(ServiceModule):
     """
     Generalized class for destroying existing service API objects.
     """
+    aliases: ClassVar[list[str]]
+    dependencies: ClassVar[set[str]]
+    
+    state_var: ClassVar[str]
+    service_api_class: ClassVar[Type[WindowsServiceAPI]]
+    service_api_var_name: ClassVar[str]
 
     @classmethod
     def generate_code(

@@ -21,7 +21,7 @@ actions:
 
   # Actions: actually do stuff
   - name: Create new thing
-    module: akf_windows.modules.artifacts.WindowsArtifactStartModule
+    module: akf_windows.modules.artifacts.WindowsArtifactServiceStartModule
 
   # Teardown: stop the VM and collect outputs
   - name: Stop the virtual machine

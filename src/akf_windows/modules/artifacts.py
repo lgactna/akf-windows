@@ -7,16 +7,17 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from akflib.core.hypervisor.base import HypervisorABC
-from akflib.declarative.core import AKFModule, AKFModuleArgs, NullArgs, NullConfig
+from akflib.declarative.core import AKFModule, AKFModuleArgs, NullConfig
 from akflib.declarative.util import auto_format
 from akflib.rendering.objs import AKFBundle
 
 from akf_windows.api.artifacts import WindowsArtifactServiceAPI
+from akf_windows.modules._base import ServiceStartModule, ServiceStopModule
 
 logger = logging.getLogger(__name__)
 
 
-class WindowsArtifactStartModule(AKFModule[NullArgs, NullConfig]):
+class WindowsArtifactServiceStartModule(ServiceStartModule):
     """
     Create a persistent WindowsArtifactServiceAPI object.
 
@@ -28,62 +29,17 @@ class WindowsArtifactStartModule(AKFModule[NullArgs, NullConfig]):
     """
 
     aliases = ["artifact_service_start"]
-    arg_model = NullArgs
-    config_model = NullConfig
 
     dependencies: ClassVar[set[str]] = {
         "akf_windows.api.artifacts.WindowsArtifactServiceAPI"
     }
 
-    @classmethod
-    def generate_code(
-        cls, args: NullArgs, config: NullConfig, state: dict[str, Any]
-    ) -> str:
-        if "akf_windows.artifacts.artifact_service" in state:
-            logger.warning("WindowsArtifactServiceAPI object already exists, skipping")
-            return ""
-
-        hypervisor_var = cls.get_hypervisor_var(state)
-        if hypervisor_var is None:
-            raise ValueError(
-                "State variable `akflib.hypervisor_var` not available, can't determine IP"
-            )
-
-        # Set new state variables
-        state["akf_windows.artifacts.artifact_service"] = "win_artifact"
-
-        return auto_format(
-            f"win_artifact = WindowsArtifactServiceAPI.auto_connect({hypervisor_var}.get_maintenance_ip())",
-            state,
-        )
-
-    @classmethod
-    def execute(
-        cls,
-        args: NullArgs,
-        config: NullConfig,
-        state: dict[str, Any],
-    ) -> None:
-        if "akf_windows.artifacts.artifact_service" in state:
-            logger.warning("WindowsArtifactServiceAPI object already exists, skipping")
-            return
-
-        hypervisor = cls.get_hypervisor(state)
-        if hypervisor is None:
-            raise ValueError(
-                "State variable `akflib.hypervisor` not available, can't determine IP"
-            )
-        assert isinstance(hypervisor, HypervisorABC)
-
-        win_artifact = WindowsArtifactServiceAPI.auto_connect(
-            hypervisor.get_maintenance_ip()
-        )
-
-        state["akf_windows.artifacts.artifact_service"] = win_artifact
-        logger.info("Created WindowsArtifactServiceAPI object")
+    state_var = "akf_windows.artifacts.artifact_service"
+    service_api_class = WindowsArtifactServiceAPI
+    service_api_var_name = "win_artifact_service"
 
 
-class WindowsArtifactStopModule(AKFModule[NullArgs, NullConfig]):
+class WindowsArtifactServiceStopModule(ServiceStopModule):
     """
     Stop the persistent WindowsArtifactServiceAPI object.
 
@@ -93,48 +49,14 @@ class WindowsArtifactStopModule(AKFModule[NullArgs, NullConfig]):
     """
 
     aliases = ["artifact_service_stop"]
-    arg_model = NullArgs
-    config_model = NullConfig
 
     dependencies: ClassVar[set[str]] = {
         "akf_windows.api.artifacts.WindowsArtifactServiceAPI"
     }
 
-    @classmethod
-    def generate_code(
-        cls, args: NullArgs, config: NullConfig, state: dict[str, Any]
-    ) -> str:
-        if "akf_windows.artifacts.artifact_service" not in state:
-            logger.warning("WindowsArtifactServiceAPI object doesn't exist, skipping")
-            return ""
-
-        var_name = state["akf_windows.artifacts.artifact_service"]
-        del state["akf_windows.artifacts.artifact_service"]
-
-        return auto_format(
-            f"{var_name}.rpyc_conn.close()",
-            state,
-        )
-
-    @classmethod
-    def execute(
-        cls,
-        args: NullArgs,
-        config: NullConfig,
-        state: dict[str, Any],
-        bundle: AKFBundle | None = None,
-    ) -> None:
-        if "akf_windows.artifacts.artifact_service" not in state:
-            logger.warning("WindowsArtifactServiceAPI object doesn't exist, skipping")
-            return
-
-        win_artifact = state["akf_windows.artifacts.artifact_service"]
-        assert isinstance(win_artifact, WindowsArtifactServiceAPI)
-
-        win_artifact.rpyc_conn.close()
-
-        del state["akf_windows.artifacts.artifact_service"]
-        logger.info("Closed WindowsArtifactServiceAPI object")
+    state_var = "akf_windows.artifacts.artifact_service"
+    service_api_class = WindowsArtifactServiceAPI
+    service_api_var_name = "win_artifact_service"
 
 
 class PrefetchModuleArgs(AKFModuleArgs):
