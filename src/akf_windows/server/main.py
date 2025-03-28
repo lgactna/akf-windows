@@ -17,6 +17,8 @@ import rpyc
 from akflib.core.agents.server import AKFService
 from rpyc.utils.server import ThreadedServer
 
+from akf_windows.server.artifacts import WindowsArtifactService
+from akf_windows.server.autogui import PyAutoGuiService
 from akf_windows.server.chromium import ChromiumService
 
 # Set up logging
@@ -28,7 +30,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger()
 
-SERVICE_LIST: list[Type[AKFService]] = [ChromiumService]
+# These can be automatically discovered with runtime module searching, but that's
+# not really necessary for now
+SERVICE_LIST: list[Type[AKFService]] = [
+    WindowsArtifactService,
+    PyAutoGuiService,
+    ChromiumService,
+]
 AVAILABLE_SERVICES: dict[str, Type[AKFService]] = {
     service.__name__: service for service in SERVICE_LIST
 }

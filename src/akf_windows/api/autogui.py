@@ -46,6 +46,6 @@ if __name__ == "__main__":
     # python -m akf_windows.api.autogui
 
     # with PyAutoGuiServiceAPI.auto_connect("192.168.50.4") as autogui:
-    # with PyAutoGuiServiceAPI.auto_connect("localhost") as autogui:
-    with PyAutoGuiServiceAPI("localhost", 18861) as autogui:
+    with PyAutoGuiServiceAPI.auto_connect("localhost") as autogui:
+        # with PyAutoGuiServiceAPI("localhost", 18861) as autogui:
         autogui.pyautogui.hotkey("win", "r")
