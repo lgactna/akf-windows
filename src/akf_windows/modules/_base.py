@@ -2,7 +2,6 @@
 Various frequently-reused utility functions.
 """
 
-import abc
 import logging
 from typing import Any, ClassVar, Type
 
@@ -13,7 +12,6 @@ from akf_windows.api._base import WindowsServiceAPI
 
 logger = logging.getLogger(__name__)
 
-import abc
 
 class ServiceModule(AKFModule[NullArgs, NullConfig]):
     """
@@ -44,7 +42,6 @@ class ServiceModule(AKFModule[NullArgs, NullConfig]):
 
         REQUIRED_ATTRIBUTES = ["state_var", "service_api_class", "service_api_var_name"]
         cls.check_required_attributes(cls, REQUIRED_ATTRIBUTES)
-                
 
     @classmethod
     def api_name(cls) -> str:
@@ -58,13 +55,14 @@ class ServiceStartModule(ServiceModule):
     If creating your service API object is as simple as creating an RPyC connection
     and adding it to the state dictionary, this class will handle that for you.
     """
+
     aliases: ClassVar[list[str]]
     dependencies: ClassVar[set[str]]
-    
+
     state_var: ClassVar[str]
     service_api_class: ClassVar[Type[WindowsServiceAPI]]
     service_api_var_name: ClassVar[str]
-    
+
     @classmethod
     def generate_code(
         cls, args: NullArgs, config: NullConfig, state: dict[str, Any]
@@ -115,9 +113,10 @@ class ServiceStopModule(ServiceModule):
     """
     Generalized class for destroying existing service API objects.
     """
+
     aliases: ClassVar[list[str]]
     dependencies: ClassVar[set[str]]
-    
+
     state_var: ClassVar[str]
     service_api_class: ClassVar[Type[WindowsServiceAPI]]
     service_api_var_name: ClassVar[str]
@@ -131,7 +130,7 @@ class ServiceStopModule(ServiceModule):
             return ""
 
         del state[cls.state_var]
-        return auto_format(f"{cls.state_var}.rpyc_conn.close()", state)
+        return auto_format(f"{cls.service_api_var_name}.rpyc_conn.close()", state)
 
     @classmethod
     def execute(

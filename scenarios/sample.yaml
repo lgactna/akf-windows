@@ -19,9 +19,17 @@ actions:
   - name: Start the virtual machine
     module: akflib.modules.vbox.VBoxStartMachineModule
 
-  # Actions: actually do stuff
-  - name: Create new thing
-    module: akf_windows.modules.artifacts.WindowsArtifactServiceStartModule
+  # Visit a few websites to generate browser artifacts.
+
+  # Collect prefetch files. We *can* manually add actions for starting and stopping
+  # the artifact service, but standalone modules should be written to spin one up
+  # if needed.
+  # - name: Start and connect to service for collecting Windows artifacts
+  #   module: akf_windows.modules.artifacts.WindowsArtifactServiceStartModule
+  - name: Collect prefetch files
+    module: akf_windows.modules.artifacts.PrefetchModule
+  # - name: Tear down connection
+  #   module: akf_windows.modules.artifacts.WindowsArtifactServiceStopModule
 
   # Teardown: stop the VM and collect outputs
   - name: Stop the virtual machine
