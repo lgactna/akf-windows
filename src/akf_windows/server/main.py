@@ -173,6 +173,11 @@ def main() -> None:
     server = ThreadedServer(
         DispatchService, port=18861, protocol_config={"allow_all_attrs": True}
     )
+
+    logger.info("Available services:")
+    for service_name, service_class in AVAILABLE_SERVICES.items():
+        logger.info(f"* {service_name} ({service_class})")
+
     logger.info("Starting Windows agent service on port 18861")
     server.start()
 
