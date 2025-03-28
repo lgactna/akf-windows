@@ -11,9 +11,10 @@ import logging
 import multiprocessing as mp
 import sys
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, Type
 
 import rpyc
+from akflib.core.agents.server import AKFService
 from rpyc.utils.server import ThreadedServer
 
 from akf_windows.server.chromium import ChromiumService
@@ -27,9 +28,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger()
 
-# TODO: this can be automatically built at runtime using classvars
-AVAILABLE_SERVICES = {
-    "ChromiumService": ChromiumService,
+SERVICE_LIST: list[Type[AKFService]] = [ChromiumService]
+AVAILABLE_SERVICES: dict[str, Type[AKFService]] = {
+    service.__name__: service for service in SERVICE_LIST
 }
 
 

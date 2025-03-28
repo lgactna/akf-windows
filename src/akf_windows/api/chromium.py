@@ -22,6 +22,8 @@ class ChromiumServiceAPI(WindowsServiceAPI):
     library and automatically create/return CASE entries.
     """
 
+    related_service = "ChromiumService"
+
     def __init__(self, host: str, port: int) -> None:
         super().__init__(host, port)
 

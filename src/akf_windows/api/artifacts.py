@@ -28,6 +28,8 @@ class WindowsArtifactServiceAPI(WindowsServiceAPI):
     for declarative stuff, because we can just use it directly
     """
 
+    related_service = "WindowsArtifactService"
+
     def collect_prefetch_file(self, prefetch_path: Path) -> WindowsPrefetch | None:
         """
         Collect a WindowsPrefetch object from a prefetch file.

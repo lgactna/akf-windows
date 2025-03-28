@@ -32,6 +32,8 @@ class PyAutoGuiServiceAPI(WindowsServiceAPI):
     for declarative stuff, because we can just use it directly
     """
 
+    related_service = "PyAutoGuiService"
+
     def __init__(self, host: str, port: int) -> None:
         super().__init__(host, port)
 

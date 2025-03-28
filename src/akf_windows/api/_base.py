@@ -5,7 +5,7 @@ This class should be subclassed by all API classes for the Windows agent. It
 automatically connects to the base DispatchService as needed.
 """
 
-from typing import Type, TypeVar
+from typing import ClassVar, Type, TypeVar
 
 from akflib.core.agents.client import AKFServiceAPI
 
@@ -45,6 +45,21 @@ class DispatchServiceAPI(AKFServiceAPI):
 
 
 class WindowsServiceAPI(AKFServiceAPI):
+    # The name of the related subservice class.
+    related_service: ClassVar[str]
+
+    def __init_subclass__(cls) -> None:
+        """
+        Check that subclasses have a related service declared.
+        """
+        super().__init_subclass__()
+
+        if not hasattr(cls, "related_service"):
+            raise TypeError(
+                f"Can't instantiate abstract class {cls.__name__} "
+                f"without required attribute 'related_service'"
+            )
+
     @classmethod
     def auto_connect(cls: Type[T], host: str) -> T:
         """
@@ -53,7 +68,6 @@ class WindowsServiceAPI(AKFServiceAPI):
         """
         # Assumed port 18861
         with DispatchServiceAPI(host, 18861) as dispatch:
-            # TODO: make this less flaky, use a property or classvar
-            port = dispatch.start_service(cls.__name__.replace("API", ""))
+            port = dispatch.start_service(cls.related_service)
             print(port)
             return cls(host, port)
