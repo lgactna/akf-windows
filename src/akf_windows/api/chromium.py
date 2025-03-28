@@ -3,8 +3,10 @@ The API for the RPyC service exposing Microsoft Edge.
 """
 
 import time
+from pathlib import Path
 from typing import Literal
 
+from caselib.uco.observable import URLHistory
 from playwright.sync_api import BrowserContext
 
 from akf_windows.api._base import WindowsServiceAPI
@@ -62,6 +64,19 @@ class ChromiumServiceAPI(WindowsServiceAPI):
         """
         self.rpyc_conn.root.kill_edge()
 
+    def get_history(
+        self, browser_type: Literal["chrome", "msedge"], history_path: Path | None
+    ) -> URLHistory:
+        """
+        Get browser history entries for the specified browser.
+
+        :param browser_type: Type of browser to retrieve history from ("chrome" or "msedge")
+        :param history_path: Path to the browser history file. If None, defaults
+            to the standard location for the specified browser.
+        :return: A URLHistory object containing the browser history entries.
+        """
+        return self.rpyc_conn.root.get_history(browser_type, history_path)
+
 
 if __name__ == "__main__":
     # Test the client.
@@ -69,8 +84,8 @@ if __name__ == "__main__":
 
     # auto-connect doesn't work, but standard connection does?
     # with ChromiumServiceAPI("localhost", 18861) as chromium:
-    # with ChromiumServiceAPI.auto_connect("localhost") as chromium:
-    with ChromiumServiceAPI.auto_connect("192.168.50.4") as chromium:
+    with ChromiumServiceAPI.auto_connect("localhost") as chromium:
+        # with ChromiumServiceAPI.auto_connect("192.168.50.4") as chromium:
         chromium.kill_edge()
         chromium.set_browser("msedge")
         assert chromium.browser is not None
@@ -82,5 +97,7 @@ if __name__ == "__main__":
 
         page.goto("http://google.com")
         time.sleep(5)
+
+        print(chromium.get_history("msedge", None))
 
         # Browser closes automatically as part of the context manager
