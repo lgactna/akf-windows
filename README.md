@@ -1,12 +1,20 @@
-To get the AKF Windows agent running, the current procedure is as follows:
 - Install Python 3.11+
-- Install Git
-- Run `uv pip install git+https://github.com/lgactna/akf-windows.git` (`uv` optional)
-- Run `akf-agent` on the command-line
+- Install git
+- Install `uv` with `pip install uv` (recommended)
+- Run `uv venv` and `uv pip install .` 
+- Download the VirtualBox SDK from [https://www.virtualbox.org/wiki/Downloads](https://www.virtualbox.org/wiki/Downloads), then *from the virtual environment*, run `python vboxapisetup.py install` inside the `/install` folder of the decompressed SDK.
 
-In the future:
-- this may be distributed as a standalone executable, through PyInstaller
-- a script may be included to make `akf-agent` persistent, such as an automatic on-startup Windows Service
+To get a suitable Windows virtual machine running for AKF, do the following:
+- Install Vagrant and Virtualbox
+- `uv pip install pyinstaller`
+- Build the agent executable with `pyinstaller --onefile --paths=.venv/Lib/site-packages src/akf_windows/server/__init__.py`
+    - In the future, this may be downloaded from GitHub releases, but this isn't currently the case
+- `vagrant up`
+- Clone the resulting machine as many times as desired
+
+If you don't like Vagrant, you can also set up your own Windows machine. Manually copy the agent executable and have it run on startup. It is strongly recommended that you have auto-logon enabled.
+
+You can also install this library with `uv pip install git+https://github.com/lgactna/akf-windows.git`, then run `akf-agent` to start the agent script. This assumes you have Python installed on the target machine.
 
 
 ## PyInstaller
