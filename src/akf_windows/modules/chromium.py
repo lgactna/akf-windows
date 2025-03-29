@@ -235,5 +235,108 @@ class ChromiumVisitURLsModule(AKFModule[ChromiumVisitURLsModuleArgs, NullConfig]
             logger.info("Closed temporary ChromiumServiceAPI object")
 
 
-class ChromiumHistoryModule:
-    pass
+class ChromiumHistoryModuleArgs(AKFModuleArgs):
+    browser: Literal["chrome", "msedge"] = "msedge"
+    history_path: Path | None = None
+
+
+class ChromiumHistoryModule(AKFModule[ChromiumHistoryModuleArgs, NullConfig]):
+    """
+    Collect browser history from a Chromium-based browser and update an existing
+    AKFBundle.
+    """
+
+    aliases = ["chromium_history"]
+    arg_model = ChromiumHistoryModuleArgs
+    config_model = NullConfig
+
+    dependencies: ClassVar[set[str]] = {
+        "akf_windows.api.chromium.ChromiumServiceAPI",
+        "pathlib.Path",
+    }
+
+    @classmethod
+    def generate_code(
+        cls,
+        args: ChromiumHistoryModuleArgs,
+        config: NullConfig,
+        state: dict[str, Any],
+    ) -> str:
+        bundle_var = cls.get_akf_bundle_var(state)
+        if bundle_var is None:
+            logger.warning(
+                "Executing ChromiumHistoryModule without a bundle won't do anything - skipping!"
+            )
+            return "# No CASE bundle was available, so no code was generated"
+
+        result = ""
+
+        result += f'history = chromium_service.get_history("{args.browser}", {args.history_path})\n'
+        result += f"{bundle_var}.add_object(history)\n"
+
+        if "akf_windows.chromium.chromium_service" not in state:
+            hypervisor_var = cls.get_hypervisor_var(state)
+            if hypervisor_var is None:
+                raise ValueError(
+                    "State variable `akflib.hypervisor` not available, can't determine IP"
+                )
+
+            # Temporarily kick up indent
+            state["indentation_level"] += 1
+            result = auto_format(result, state)
+            state["indentation_level"] -= 1
+            result = (
+                f"with ChromiumServiceAPI.auto_connect({hypervisor_var}.get_maintenance_ip()) as chromium_service:\n"
+                + result
+            )
+
+        return auto_format(result, state)
+
+    @classmethod
+    def execute(
+        cls,
+        args: ChromiumHistoryModuleArgs,
+        config: NullConfig,
+        state: dict[str, Any],
+    ) -> None:
+        bundle = cls.get_akf_bundle(state)
+        if bundle is None:
+            logger.warning(
+                "Executing ChromiumHistoryModule without a bundle won't do anything - skipping!"
+            )
+            return
+
+        # Check that a ChromiumServiceAPI object is available. If it isn't,
+        # create a temporary context manager.
+        #
+        # TODO: generalize this "create a temporary service" pattern into a
+        # context manager that accepts `state`
+        close_chromium_service = False
+        if "akf_windows.chromium.chromium_service" not in state:
+            hypervisor = cls.get_hypervisor(state)
+            if hypervisor is None:
+                raise ValueError(
+                    "State variable `akflib.hypervisor` not available, can't determine IP"
+                )
+
+            hypervisor = state["akflib.hypervisor"]
+            assert isinstance(hypervisor, HypervisorABC)
+
+            logger.info("Creating temporary ChromiumServiceAPI object")
+            chromium_service = ChromiumServiceAPI.auto_connect(
+                hypervisor.get_maintenance_ip()
+            )
+            close_chromium_service = True
+        else:
+            chromium_service = state["akf_windows.chromium.chromium_service"]
+            assert isinstance(chromium_service, ChromiumServiceAPI)
+
+        # Collect the history.
+        history = chromium_service.get_history(args.browser, args.history_path)
+
+        if close_chromium_service:
+            chromium_service.rpyc_conn.close()
+            logger.info("Closed temporary ChromiumServiceAPI object")
+
+        # Add the history to the bundle.
+        bundle.add_object(history)

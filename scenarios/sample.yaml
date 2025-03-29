@@ -19,7 +19,10 @@ actions:
   - name: Start the virtual machine
     module: akflib.modules.vbox.VBoxStartMachineModule
 
-  # Visit a few websites to generate browser artifacts.
+  # Start the Chromium subservice, so a single object can be shared between
+  # all of the actions. Then, visit a single URL and a list of URLs from a file.
+  - name: Start a shared Chromium service
+    module: akf_windows.modules.chromium.ChromiumServiceStartModule
   - name: Visit a single website
     module: akf_windows.modules.chromium.ChromiumVisitURLsModule
     args:
@@ -30,9 +33,15 @@ actions:
     module: akf_windows.modules.chromium.ChromiumVisitURLsModule
     args:
       browser: "msedge"
-      file: "./scenarios/sample_urls.txt"
-
-  # TODO: Collect browser artifacts.
+      file: "./scenarios/sample_urls.txt" 
+  - name: Generate CASE browser artifacts
+    module: akf_windows.modules.chromium.ChromiumHistoryModule
+    args:
+      browser: "msedge"
+  # Tear down the client-side connection to the Chromium subservice. This doesn't
+  # terminate the subservice on the virtual machine.
+  - name: Stop the shared Chromium service
+    module: akf_windows.modules.chromium.ChromiumServiceStopModule
 
 
   # Collect prefetch files. We *can* manually add actions for starting and stopping

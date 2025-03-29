@@ -1,20 +1,42 @@
+
+## Installation
 - Install Python 3.11+
 - Install git
 - Install `uv` with `pip install uv` (recommended)
 - Run `uv venv` and `uv pip install .` 
 - Download the VirtualBox SDK from [https://www.virtualbox.org/wiki/Downloads](https://www.virtualbox.org/wiki/Downloads), then *from the virtual environment*, run `python vboxapisetup.py install` inside the `/install` folder of the decompressed SDK.
 
+
+## Agent/VM setup
 To get a suitable Windows virtual machine running for AKF, do the following:
 - Install Vagrant and Virtualbox
 - `uv pip install pyinstaller`
 - Build the agent executable with `pyinstaller --onefile --paths=.venv/Lib/site-packages src/akf_windows/server/__init__.py`
     - In the future, this may be downloaded from GitHub releases, but this isn't currently the case
-- `vagrant up`
+- `vagrant up`, wait for the machine to be created
+    - If Vagrant times out, you can increase the timeout limit or just run it again
 - Clone the resulting machine as many times as desired
 
 If you don't like Vagrant, you can also set up your own Windows machine. Manually copy the agent executable and have it run on startup. It is strongly recommended that you have auto-logon enabled.
 
 You can also install this library with `uv pip install git+https://github.com/lgactna/akf-windows.git`, then run `akf-agent` to start the agent script. This assumes you have Python installed on the target machine.
+
+## Demos
+After you've followed the steps above, you can run some of the demos from the root of the repo:
+
+```sh
+# Convert the sample declarative scenario to a Python script, write to stdout
+akf-translate scenarios/sample.yaml --translate
+
+# Write to a file instead (this is how scenarios/sample.py was made)
+akf-translate scenarios/sample.yaml --translate --output-file scenarios/sample.py
+
+# Execute a declarative scenario directly
+akf-translate scenarios/sample.yaml --execute
+
+# Execute the generated Python script
+python scenarios/sample.py
+```
 
 
 ## PyInstaller
