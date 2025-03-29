@@ -1,167 +1,221 @@
-# """
-# Declarative modules for interacting with Chromium browsers.
-# """
+"""
+Declarative modules for interacting with Chromium browsers.
+"""
 
-# import logging
-# from pathlib import Path
-# from typing import Any, ClassVar
+import logging
+import random
+import time
+from pathlib import Path
+from typing import Any, ClassVar, Literal
 
-# from akflib.core.hypervisor.base import HypervisorABC
-# from akflib.declarative.core import AKFModule, AKFModuleArgs, NullConfig
-# from akflib.declarative.util import auto_format
+from akflib.core.hypervisor.base import HypervisorABC
+from akflib.declarative.core import AKFModule, AKFModuleArgs, NullConfig
+from akflib.declarative.util import auto_format
 
-# from akf_windows.api.chromium import ChromiumServiceAPI
-# from akf_windows.modules._base import ServiceStartModule, ServiceStopModule
+from akf_windows.api.chromium import ChromiumServiceAPI
+from akf_windows.modules._base import ServiceStartModule, ServiceStopModule
 
-# logger = logging.getLogger(__name__)
-
-
-# class ChromiumServiceStartModule(ServiceStartModule):
-#     """
-#     Create a persistent ChromiumServiceAPI object.
-
-#     State variables:
-#     - akflib.hypervisor (read): to get the IP of the currently active virtual machine.
-#     - akf_windows.artifacts.chromium_service (write): Set to the name of the
-#       ChromiumServiceAPI variable on generation; set to an instance of
-#       ChromiumServiceAPI on execution.
-#     """
-
-#     aliases = ["chromium_service_start"]
-
-#     dependencies: ClassVar[set[str]] = {"akf_windows.api.chromium.ChromiumServiceAPI"}
-
-#     state_var = "akf_windows.artifacts.chromium_service"
-#     service_api_class = ChromiumServiceAPI
-#     service_api_var_name = "chromium_service"
+logger = logging.getLogger(__name__)
 
 
-# class ChromiumServiceStopModule(ServiceStopModule):
-#     """
-#     Close a persistent ChromiumServiceAPI object.
+class ChromiumServiceStartModule(ServiceStartModule):
+    """
+    Create a persistent ChromiumServiceAPI object.
 
-#     State variables:
-#     - akf_windows.artifacts.chromium_service (read/write): Closed and/or
-#       cleared from state.
-#     """
+    State variables:
+    - akflib.hypervisor (read): to get the IP of the currently active virtual machine.
+    - akf_windows.chromium.chromium_service (write): Set to the name of the
+      ChromiumServiceAPI variable on generation; set to an instance of
+      ChromiumServiceAPI on execution.
+    """
 
-#     aliases = ["chromium_service_stop"]
+    aliases = ["chromium_service_start"]
 
-#     dependencies: ClassVar[set[str]] = {"akf_windows.api.chromium.ChromiumServiceAPI"}
+    dependencies: ClassVar[set[str]] = {"akf_windows.api.chromium.ChromiumServiceAPI"}
 
-#     state_var = "akf_windows.artifacts.chromium_service"
-#     service_api_class = ChromiumServiceAPI
-#     service_api_var_name = "chromium_service"
-
-
-# class PrefetchModuleArgs(AKFModuleArgs):
-#     prefetch_folder: Path | None = None
+    state_var = "akf_windows.chromium.chromium_service"
+    service_api_class = ChromiumServiceAPI
+    service_api_var_name = "chromium_service"
 
 
-# class PrefetchModule(AKFModule[PrefetchModuleArgs, NullConfig]):
-#     """
-#     State variables:
-#     - akflib.hypervisor (read): to get the IP of the currently active virtual machine.
-#     - akflib.bundle (write): to add the collected prefetch objects.
-#     - akf_windows.artifacts.artifact_service (read): to re-use an existing
-#       RPyC connection.
-#     """
+class ChromiumServiceStopModule(ServiceStopModule):
+    """
+    Close a persistent ChromiumServiceAPI object.
 
-#     aliases = ["prefetch"]
-#     arg_model = PrefetchModuleArgs
-#     config_model = NullConfig
+    State variables:
+    - akf_windows.chromium.chromium_service (read/write): Closed and/or
+      cleared from state.
+    """
 
-#     dependencies: ClassVar[set[str]] = {
-#         "akf_windows.api.artifacts.WindowsArtifactServiceAPI"
-#     }
+    aliases = ["chromium_service_stop"]
 
-#     @classmethod
-#     def generate_code(
-#         cls, args: PrefetchModuleArgs, config: NullConfig, state: dict[str, Any]
-#     ) -> str:
-#         bundle_var = cls.get_akf_bundle_var(state)
-#         if bundle_var is None:
-#             logger.warning(
-#                 "Executing PrefetchModule without a bundle won't do anything - skipping!"
-#             )
-#             return "# No CASE bundle was available, so no code was generated"
+    dependencies: ClassVar[set[str]] = {"akf_windows.api.chromium.ChromiumServiceAPI"}
 
-#         result = ""
+    state_var = "akf_windows.chromium.chromium_service"
+    service_api_class = ChromiumServiceAPI
+    service_api_var_name = "chromium_service"
+    
 
-#         # Check that a WindowsArtifactService API object is available. If it isn't,
-#         # include a temporary context manager, and assert that a `akflib.hypervisor`
-#         # object is available.
-#         indent_code = False
-#         if "akf_windows.artifacts.artifact_service" not in state:
-#             hypervisor_var = cls.get_hypervisor_var(state)
-#             if hypervisor_var is None:
-#                 raise ValueError(
-#                     "State variable `akflib.hypervisor` not available, can't start a service"
-#                 )
+class ChromiumVisitURLsModuleArgs(AKFModuleArgs):
+    browser: Literal["msedge", "chrome"] = "msedge"
+    
+    # A list of URLs to visit, in order.
+    urls: list[str] = []
+    
+    # A file to load `urls` from, as a newline-separated list.
+    file: Path | None = None
+    
+    # The time to wait between each URL visit, in seconds.
+    wait_time: int = 5
+    
+    # Jitter between each URL visit, as an absolute value. A jitter of 1 means
+    # that the wait time will be between 4 and 6 seconds, if wait_time is 5.
+    # The wait time will never be less than 1 second.
+    jitter: int = 0
 
-#             # Generate temporary object. Don't add it to the state and don't modify
-#             # the indentation; we want it to close as soon as we're done.
-#             indent_code = True
-#             result += f"with WindowsArtifactServiceAPI.auto_connect({hypervisor_var}.get_maintenance_ip()) as win_artifact:\n"
-#             win_artifact_var = "win_artifact"
-#         else:
-#             # Use the existing object.
-#             win_artifact_var = state["akf_windows.artifacts.artifact_service"]
+class ChromiumVisitURLsModule(AKFModule[ChromiumVisitURLsModuleArgs, NullConfig]):
+    """
+    Visit a list of URLs in a Chromium browser.
 
-#         if indent_code:
-#             result += f"    prefetch_objs = {win_artifact_var}.collect_prefetch_dir({args.prefetch_folder})\n"
-#             result += f"    {bundle_var}.add_objects(prefetch_objs)\n"
-#         else:
-#             result += f"prefetch_objs = {win_artifact_var}.collect_prefetch_dir({args.prefetch_folder})\n"
-#             result += f"{bundle_var}.add_objects(prefetch_objs)\n"
+    State variables:
+    - akf_windows.artifacts.chromium_service (read): to get the IP of the currently active virtual machine.
+    """
 
-#         return auto_format(
-#             result,
-#             state,
-#         )
+    aliases = ["chromium_visit_urls"]
+    arg_model = ChromiumVisitURLsModuleArgs
+    config_model = NullConfig
 
-#     @classmethod
-#     def execute(
-#         cls,
-#         args: PrefetchModuleArgs,
-#         config: NullConfig,
-#         state: dict[str, Any],
-#     ) -> None:
-#         bundle = cls.get_akf_bundle(state)
-#         if bundle is None:
-#             logger.warning(
-#                 "Executing PrefetchModule without a bundle won't do anything - skipping!"
-#             )
-#             return
+    dependencies: ClassVar[set[str]] = {"akf_windows.api.chromium.ChromiumServiceAPI", "time", "random", "pathlib.Path"}
 
-#         # Check that a WindowsArtifactServiceAPI object is available. If it
-#         # isn't, create a temporary context manager. (This, of course, requires
-#         # that a machine is available with `akflib.machine`.)
-#         close_win_artifact = False
-#         if "akf_windows.artifacts.artifact_service" not in state:
-#             hypervisor = cls.get_hypervisor(state)
-#             if hypervisor is None:
-#                 raise ValueError(
-#                     "State variable `akflib.hypervisor` not available, can't determine IP"
-#                 )
+    @classmethod
+    def generate_code(
+        cls, args: ChromiumVisitURLsModuleArgs, config: NullConfig, state: dict[str, Any]
+    ) -> str:
+        # Exactly one of `urls` or `file` must be provided.
+        if not(bool(args.urls) ^ bool(args.file)):
+            raise ValueError("Exactly one of `urls` or `file` must be provided.")
 
-#             hypervisor = state["akflib.hypervisor"]
-#             assert isinstance(hypervisor, HypervisorABC)
+        result = ""
 
-#             win_artifact = WindowsArtifactServiceAPI.auto_connect(
-#                 hypervisor.get_maintenance_ip()
-#             )
+        # If `file` is provided, then load its contents into a variable called `urls`.
+        # If `urls` is provided, then use it to construct a list variable in-place.
+        if args.file:
+            result += f'url_path = Path("{args.file.as_posix()}")\n'
+            result += 'if not url_path.exists():\n'
+            result += f'    raise FileNotFoundError(f"File {args.file} does not exist.")\n'
+            result += 'if not url_path.is_file():\n'
+            result += f'    raise ValueError(f"{args.file} is not a file.")\n'
+            result += 'if url_path.stat().st_size == 0:\n'
+            result += f'    raise ValueError(f"{args.file} is empty.")\n'
+            result += "\n"
+            result += 'with open(url_path, "rt") as f:\n'
+            result += '    urls = [line.strip() for line in f.readlines()]'
+        else:
+            result += "urls = [\n"
+            for url in args.urls:
+                result += f'    "{url}",\n'
+            result += "]\n"
+        
+        result += "\n"
+            
+        # The variable for the service is `chromium_service` regardless of whether
+        # it currently exists or not. If it doens't exist, we'll wrap the entire
+        # thing in a context manager and indent after the fact.
+        if args.browser == "msedge":
+            result += "chromium_service.kill_edge()\n"
+        result += f'chromium_service.set_browser("{args.browser}")\n'
+        result += "page = chromium_service.browser.new_page()\n"
+        result += "\n"
+        result += "for url in urls:\n"
+        result += "    page.goto(url)\n"
+        result += f"    time.sleep({args.wait_time} + random.randint(-{args.jitter}, {args.jitter}))\n"
+        
+        if "akf_windows.chromium.chromium_service" not in state:
+            hypervisor_var = cls.get_hypervisor_var(state)
+            if hypervisor_var is None:
+                raise ValueError(
+                    "State variable `akflib.hypervisor` not available, can't determine IP"
+                )
+            
+            # Temporarily kick up indent
+            state['indentation_level'] += 1
+            result = auto_format(result, state)
+            state['indentation_level'] -= 1
+            result = f"with ChromiumServiceAPI.auto_connect({hypervisor_var}.get_maintenance_ip()) as chromium_service:\n" + result
 
-#             logger.info("Creating temporary WindowsArtifactServiceAPI object")
-#             close_win_artifact = True
-#         else:
-#             win_artifact = state["akf_windows.artifacts.artifact_service"]
-#             assert isinstance(win_artifact, WindowsArtifactServiceAPI)
+        return auto_format(result, state)
+    
+    @classmethod
+    def execute(
+        cls, args: ChromiumVisitURLsModuleArgs, config: NullConfig, state: dict[str, Any]
+    ) -> None:
+        """
+        Execute the module.
 
-#         prefetch_objs = win_artifact.collect_prefetch_dir(args.prefetch_folder)
-#         if close_win_artifact:
-#             win_artifact.rpyc_conn.close()
-#             logger.info("Closed temporary WindowsArtifactServiceAPI object")
+        Args:
+            args (ChromiumVisitURLsModuleArgs): The module arguments.
+            config (NullConfig): The module configuration.
+            state (dict[str, Any]): The module state.
 
-#         # Add all objects to the bundle
-#         bundle.add_objects(prefetch_objs)
+        Raises:
+            NotImplementedError: This method is not implemented yet.
+        """
+        # Exactly one of `urls` or `file` must be provided.
+        if not (bool(args.urls) ^ bool(args.file)):
+            raise ValueError("Exactly one of `urls` or `file` must be provided.")
+        
+        # If `file` is provided, check that it exists; if it exists, load each
+        # line into `urls`.
+        if args.file:
+            if not args.file.exists():
+                raise FileNotFoundError(f"File {args.file} does not exist.")
+            if not args.file.is_file():
+                raise ValueError(f"{args.file} is not a file.")
+            if args.file.stat().st_size == 0:
+                raise ValueError(f"{args.file} is empty.")
+            
+            with open(args.file, "rt") as f:
+                args.urls = [line.strip() for line in f.readlines()]
+                
+        # Check that a ChromiumServiceAPI object is available. If it isn't,
+        # create a temporary context manager.
+        close_chromium_service = False
+        if "akf_windows.chromium.chromium_service" not in state:
+            hypervisor = cls.get_hypervisor(state)
+            if hypervisor is None:
+                raise ValueError(
+                    "State variable `akflib.hypervisor` not available, can't determine IP"
+                )
+
+            hypervisor = state["akflib.hypervisor"]
+            assert isinstance(hypervisor, HypervisorABC)
+
+            logger.info("Creating temporary ChromiumServiceAPI object")
+            chromium_service = ChromiumServiceAPI.auto_connect(
+                hypervisor.get_maintenance_ip()
+            )
+            close_chromium_service = True
+        else:
+            chromium_service = state["akf_windows.chromium.chromium_service"]
+            assert isinstance(chromium_service, ChromiumServiceAPI)
+            
+        # Visit the URLs.
+        if args.browser == "msedge":
+            logger.info("Killing existing Edge processes")
+            chromium_service.kill_edge()
+        
+        chromium_service.set_browser(args.browser)
+        logger.info(f"Opening {args.browser=}")
+        page = chromium_service.browser.new_page()
+        
+        for url in args.urls:
+            logger.info(f"Visiting {url}")
+            page.goto(url)
+            time.sleep(args.wait_time + random.randint(-args.jitter, args.jitter))
+            
+        if close_chromium_service:
+            chromium_service.rpyc_conn.close()
+            logger.info("Closed temporary ChromiumServiceAPI object")
+            
+class ChromiumHistoryModule():
+    pass

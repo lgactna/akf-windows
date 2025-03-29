@@ -20,6 +20,20 @@ actions:
     module: akflib.modules.vbox.VBoxStartMachineModule
 
   # Visit a few websites to generate browser artifacts.
+  - name: Visit a single website
+    module: akf_windows.modules.chromium.ChromiumVisitURLsModule
+    args:
+      browser: "msedge"
+      urls: 
+       - "https://www.google.com"
+  - name: Visit a list of websites from a file
+    module: akf_windows.modules.chromium.ChromiumVisitURLsModule
+    args:
+      browser: "msedge"
+      file: "./scenarios/sample_urls.txt"
+
+  # TODO: Collect browser artifacts.
+
 
   # Collect prefetch files. We *can* manually add actions for starting and stopping
   # the artifact service, but standalone modules should be written to spin one up
