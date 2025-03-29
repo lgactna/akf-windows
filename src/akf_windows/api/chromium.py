@@ -2,6 +2,7 @@
 The API for the RPyC service exposing Microsoft Edge.
 """
 
+import pickle
 import time
 from pathlib import Path
 from typing import Literal
@@ -75,17 +76,20 @@ class ChromiumServiceAPI(WindowsServiceAPI):
             to the standard location for the specified browser.
         :return: A URLHistory object containing the browser history entries.
         """
-        return self.rpyc_conn.root.get_history(browser_type, history_path)
+        # The result is pickled, and must be unpickled to be used.
+        return pickle.loads(self.rpyc_conn.root.get_history(browser_type, history_path))
 
 
 if __name__ == "__main__":
     # Test the client.
     # python -m akf_windows.api.chromium
 
+    from akflib.rendering.objs import AKFBundle
+
     # auto-connect doesn't work, but standard connection does?
     # with ChromiumServiceAPI("localhost", 18861) as chromium:
-    with ChromiumServiceAPI.auto_connect("localhost") as chromium:
-        # with ChromiumServiceAPI.auto_connect("192.168.50.4") as chromium:
+    # with ChromiumServiceAPI.auto_connect("localhost") as chromium:
+    with ChromiumServiceAPI.auto_connect("192.168.50.4") as chromium:
         chromium.kill_edge()
         chromium.set_browser("msedge")
         assert chromium.browser is not None
@@ -98,6 +102,19 @@ if __name__ == "__main__":
         page.goto("http://google.com")
         time.sleep(5)
 
-        print(chromium.get_history("msedge", None))
+        obj = chromium.get_history("msedge", None)
 
         # Browser closes automatically as part of the context manager
+
+    print(obj.hasFacet[0].browserInformation)
+
+    bundle = AKFBundle()
+    bundle.add_object(obj)
+
+    for obj_type, objs in bundle._object_index.items():
+        print(f"{obj_type}: {len(objs)}")
+
+    # print(type(bundle))
+    print(len(bundle.object))
+    # print(bundle.object)
+    # print(bundle)

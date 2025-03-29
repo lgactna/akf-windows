@@ -3,6 +3,7 @@ Implementation of the RPyC service for interacting with Chromium browsers using 
 """
 
 import logging
+import pickle
 import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
@@ -278,7 +279,7 @@ class ChromiumService(AKFService):
 
     def exposed_get_history(
         self, browser_type: Literal["chrome", "msedge"], history_path: Path | None
-    ) -> URLHistory:
+    ) -> bytes:
         """
         Get browser history entries for the specified browser.
 
@@ -306,7 +307,8 @@ class ChromiumService(AKFService):
             ],
         )
 
-        return url_history
+        # Pickle the object to send it over RPyC
+        return pickle.dumps(url_history)
 
 
 if __name__ == "__main__":
