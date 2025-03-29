@@ -58,11 +58,11 @@ for url in urls:
 logger.info(r'Executing action: Visit a list of websites from a file')
 url_path = Path("scenarios/sample_urls.txt")
 if not url_path.exists():
-    raise FileNotFoundError(f"File scenarios\sample_urls.txt does not exist.")
+    raise FileNotFoundError("File scenarios/sample_urls.txt does not exist.")
 if not url_path.is_file():
-    raise ValueError(f"scenarios\sample_urls.txt is not a file.")
+    raise ValueError("scenarios/sample_urls.txt is not a file.")
 if url_path.stat().st_size == 0:
-    raise ValueError(f"scenarios\sample_urls.txt is empty.")
+    raise ValueError("scenarios/sample_urls.txt is empty.")
 
 with open(url_path, "rt") as f:
     urls = [line.strip() for line in f.readlines()]
