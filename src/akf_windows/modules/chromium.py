@@ -111,13 +111,11 @@ class ChromiumVisitURLsModule(AKFModule[ChromiumVisitURLsModuleArgs, NullConfig]
         if args.file:
             result += f'url_path = Path("{args.file.as_posix()}")\n'
             result += "if not url_path.exists():\n"
-            result += (
-                f'    raise FileNotFoundError(f"File {args.file} does not exist.")\n'
-            )
+            result += f'    raise FileNotFoundError("File {args.file.as_posix()} does not exist.")\n'
             result += "if not url_path.is_file():\n"
-            result += f'    raise ValueError(f"{args.file} is not a file.")\n'
+            result += f'    raise ValueError("{args.file.as_posix()} is not a file.")\n'
             result += "if url_path.stat().st_size == 0:\n"
-            result += f'    raise ValueError(f"{args.file} is empty.")\n'
+            result += f'    raise ValueError("{args.file.as_posix()} is empty.")\n'
             result += "\n"
             result += 'with open(url_path, "rt") as f:\n'
             result += "    urls = [line.strip() for line in f.readlines()]"
