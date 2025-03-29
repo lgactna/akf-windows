@@ -119,9 +119,13 @@ class DispatchService(rpyc.Service):  # type: ignore[misc]
         if service_name in self.running_services:
             return self.running_services[service_name].port
 
+        # Pickling is permitted to allow for more complex objects where needed.
+        # AKF is assumed to run in a trusted environment.
         service_class = AVAILABLE_SERVICES[service_name]
         server = ThreadedServer(
-            service_class, port=0, protocol_config={"allow_all_attrs": True}
+            service_class,
+            port=0,
+            protocol_config={"allow_all_attrs": True, "allow_pickle": True},
         )
 
         # Start the service in a new process

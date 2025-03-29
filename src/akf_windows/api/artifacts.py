@@ -3,6 +3,7 @@ The API for the RPyC service that locates and collects Windows artifacts,
 constructing and returning CASE objects.
 """
 
+import pickle
 from pathlib import Path
 
 from caselib.uco.observable import WindowsPrefetch
@@ -51,14 +52,36 @@ class WindowsArtifactServiceAPI(WindowsServiceAPI):
         :param glob: The glob pattern to use for finding prefetch files.
         :return: A list of WindowsPrefetch objects representing the prefetch files.
         """
-        return self.rpyc_conn.root.collect_prefetch_dir(prefetch_folder, glob)  # type: ignore[no-any-return]
+        # This returns a pickled object that needs to be deserialized.
+        temp_result = self.rpyc_conn.root.collect_prefetch_dir(prefetch_folder, glob)
+
+        # Some RPyC netref weirdness means we have to convert these to "acutal"
+        # objects before we can use them. A better solution might be to change the
+        # model serializer in caselib to allow for conversion between the
+        # Pydantic and not-Pydantic versions of the object, though that's not a
+        # trivial fix.
+        return pickle.loads(temp_result)  # type: ignore[no-any-return]
 
 
 if __name__ == "__main__":
     # Test the client.
     # python -m akf_windows.api.autogui
 
+    from akflib.rendering.objs import AKFBundle
+
     # with WindowsArtifactServiceAPI.auto_connect("192.168.50.4") as win_artifact:
-    # with WindowsArtifactServiceAPI.auto_connect("localhost") as win_artifact:
-    with WindowsArtifactServiceAPI("localhost", 18861) as win_artifact:
-        print(win_artifact.collect_prefetch_dir(glob="cmd.exe*"))
+    with WindowsArtifactServiceAPI.auto_connect("localhost") as win_artifact:
+        # with WindowsArtifactServiceAPI("localhost", 18861) as win_artifact:
+        # objs = win_artifact.collect_prefetch_dir(glob="*.pf")
+        objs = win_artifact.collect_prefetch_dir(glob="code.exe*")
+
+        bundle = AKFBundle()
+        bundle.add_objects(objs)
+
+        for obj_type, objs in bundle._object_index.items():
+            print(f"{obj_type}: {len(objs)}")
+
+        # print(type(bundle))
+        print(len(bundle.object))
+        # print(bundle.object)
+        # print(bundle)

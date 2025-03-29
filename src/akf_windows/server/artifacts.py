@@ -3,6 +3,7 @@ Implementation of the RPyC service for collecting various Windows artifacts.
 """
 
 import logging
+import pickle
 import re
 from pathlib import Path
 
@@ -155,7 +156,7 @@ class WindowsArtifactService(AKFService):
 
     def exposed_collect_prefetch_dir(
         self, prefetch_folder: Path | None = None, glob: str = "*.pf"
-    ) -> list[WindowsPrefetch]:
+    ) -> bytes:
         """
         Scan the machine for Prefetch files and generate a list of `WindowsPrefetch`
         objects.
@@ -184,7 +185,10 @@ class WindowsArtifactService(AKFService):
         # these prefetch files, as it's easier for a caller to tack on a reference
         # to an existing volume after the fact if needed.
 
-        return result
+        # RPyC doesn't play well with some of the Pydantic properties that we need
+        # to correctly add things to AKFBundle using AKFBundle.add_objects, so we
+        # pickle the objects and deserialize them on the host.
+        return pickle.dumps(result)
 
 
 if __name__ == "__main__":
