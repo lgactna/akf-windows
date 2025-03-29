@@ -28,7 +28,7 @@ After you've followed the steps above, you can run some of the demos from the ro
 # Convert the sample declarative scenario to a Python script, write to stdout
 akf-translate scenarios/sample.yaml --translate
 
-# Write to a file instead (this is how scenarios/sample.py was made)
+# Write to a file instead (this is how scenarios/sample_linted.py was made)
 akf-translate scenarios/sample.yaml --translate --output-file scenarios/sample.py
 
 # Execute a declarative scenario directly
@@ -37,6 +37,8 @@ akf-translate scenarios/sample.yaml --execute
 # Execute the generated Python script
 python scenarios/sample.py
 ```
+
+`scenarios/sample_linted.py` is the immediate output of the second command above, but with `isort` and `black` modifications.
 
 
 ## PyInstaller
