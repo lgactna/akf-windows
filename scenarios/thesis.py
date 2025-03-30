@@ -27,7 +27,7 @@ vbox_obj.stop_vm(force=False)
 
 # Export the virtual machine to a disk image
 vbox_obj.create_disk_image(
-    Path("C:/Users/kisun/Desktop/akf-windows_1.raw"),
+    Path("C:/Users/user/Desktop/akf-windows_1.raw"),
     VBoxExportFormatEnum.RAW
 )
 
