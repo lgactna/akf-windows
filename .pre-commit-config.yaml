@@ -9,7 +9,7 @@ repos:
     - id: mypy
       args: [--strict, --warn-unused-configs, --ignore-missing-imports]
       additional_dependencies:
-        - git+https://github.com/lgactna/akflib.git@f3ba55df8613410d45369921443dfb1fbf01316d
+        - git+https://github.com/lgactna/akflib.git@edef14708629e9b88540845bff54ea9f26b325db
         - pytest-playwright
         - rpyc
 - repo: https://github.com/pycqa/flake8
