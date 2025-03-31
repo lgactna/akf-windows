@@ -104,12 +104,12 @@ vbox_obj.stop_vm(force=False)
 # Export the virtual machine to a disk image
 logger.info(r"Executing action: Export the virtual machine to a disk image")
 vbox_obj.create_disk_image(
-    Path("C:/Users/kisun/Desktop/akf-windows_1.raw"), VBoxExportFormatEnum.RAW
+    Path("C:/Users/user/Desktop/akf-windows_1.raw"), VBoxExportFormatEnum.RAW
 )
 
 # Export the CASE bundle to a JSON-LD file
 logger.info(r"Executing action: Export the CASE bundle to a JSON-LD file")
-akf_bundle.write_to_jsonld(Path("C:/Users/kisun/Desktop/bundle.jsonld"), indent=2)
+akf_bundle.write_to_jsonld(Path("scenarios/sample.jsonld"), indent=2)
 
 # Generate a PDF of the CASE bundle
 logger.info(r"Executing action: Generate a PDF of the CASE bundle")
