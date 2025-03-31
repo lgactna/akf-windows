@@ -59,11 +59,11 @@ actions:
     module: akflib.modules.vbox.VBoxStopMachineModule
     args:
       force: false
-  # - name: Export the virtual machine to a disk image
-  #   module: akflib.modules.vbox.VBoxCreateDiskImageModule
-  #   args:
-  #     output_path: "C:/Users/kisun/Desktop/akf-windows_1.raw"
-  #     image_format: "raw"
+  - name: Export the virtual machine to a disk image
+    module: akflib.modules.vbox.VBoxCreateDiskImageModule
+    args:
+      output_path: "C:/Users/user/Desktop/akf-windows_1.raw"
+      image_format: "raw"
   - name: Export the CASE bundle to a JSON-LD file
     module: akflib.modules.case.WriteAKFBundleModule
     args:
