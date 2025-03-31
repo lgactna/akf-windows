@@ -66,7 +66,9 @@ class ChromiumServiceAPI(WindowsServiceAPI):
         self.rpyc_conn.root.kill_edge()
 
     def get_history(
-        self, browser_type: Literal["chrome", "msedge"], history_path: Path | None = None
+        self,
+        browser_type: Literal["chrome", "msedge"],
+        history_path: Path | None = None,
     ) -> URLHistory:
         """
         Get browser history entries for the specified browser.
