@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 
 from akflib.core.hypervisor.vbox import VBoxExportFormatEnum, VBoxHypervisor
+from akflib.rendering.core import bundle_to_pdf, get_pandoc_path, get_renderer_classes
 from akflib.rendering.objs import AKFBundle
 
 from akf_windows.api.artifacts import WindowsArtifactServiceAPI
@@ -109,3 +110,29 @@ vbox_obj.create_disk_image(
 # Export the CASE bundle to a JSON-LD file
 logger.info(r"Executing action: Export the CASE bundle to a JSON-LD file")
 akf_bundle.write_to_jsonld(Path("C:/Users/kisun/Desktop/bundle.jsonld"), indent=2)
+
+# Generate a PDF of the CASE bundle
+logger.info(r"Executing action: Generate a PDF of the CASE bundle")
+renderer_classes = get_renderer_classes(
+    [
+        "akflib.renderers.prefetch.PrefetchRenderer",
+        "akflib.renderers.urlhistory.URLHistoryRenderer",
+    ]
+)
+
+pandoc_path = get_pandoc_path()
+if pandoc_path is None:
+    raise RuntimeError(
+        "Unable to find path to Pandoc executable (make sure it is on PATH)"
+    )
+
+pandoc_output_folder = Path("scenarios")
+pandoc_output_folder.mkdir(parents=True, exist_ok=True)
+
+bundle_to_pdf(
+    akf_bundle,
+    renderer_classes,
+    pandoc_output_folder,
+    pandoc_path,
+    group_renderers=False,
+)

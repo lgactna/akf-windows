@@ -1,3 +1,7 @@
 https://example.com/
 https://old.reddit.com/
 https://en.wikipedia.org/wiki/Main_Page
+https://www.bbc.com/
+https://www.reuters.com/
+https://www.nytimes.com/
+https://www.theguardian.com/
