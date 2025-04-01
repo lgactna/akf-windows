@@ -20,7 +20,7 @@ actions:
     args:
       machine_name: "akf-windows-1"
   - name: Start the virtual machine
-    module: akflib.modules.vbox.VBoxStartMachineModule
+    module: vbox_start_machine
 
   # Visit a website using Microsoft Edge. A temporary instance of the Chromium
   # subservice API is created for the lifetime of this module.
