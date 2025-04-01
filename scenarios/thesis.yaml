@@ -23,7 +23,7 @@ actions:
     module: akflib.modules.vbox.VBoxStartMachineModule
 
   # Visit a website using Microsoft Edge. A temporary instance of the Chromium
-  # subservice API is created for the lietime of this module.
+  # subservice API is created for the lifetime of this module.
   - name: Visit a single website
     module: chromium_visit_urls
     args:
