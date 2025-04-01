@@ -1,0 +1,50 @@
+- action: create_akf_bundle
+  name: my_scenario_bundle
+
+- action: vbox_start
+  vm_name: test_vm
+
+- action: vbox_start_machine
+  vm_name: test_vm
+  timeout: 60
+
+- action: chromium_visit_urls
+  urls:
+    - https://news.google.com
+    - https://bbc.com/news
+  browser_path: /usr/bin/google-chrome-stable
+  profile_path: ~/.config/google-chrome/Default
+
+- action: vbox_stop_machine
+  vm_name: test_vm
+
+- action: vbox_start_machine
+  vm_name: test_vm
+  timeout: 60
+
+- action: chromium_visit_urls
+  urls:
+    - https://youtube.com
+    - https://netflix.com
+  browser_path: /usr/bin/google-chrome-stable
+  profile_path: ~/.config/google-chrome/Default
+
+- action: vbox_stop_machine
+  vm_name: test_vm
+
+- action: vbox_start_machine
+  vm_name: test_vm
+  timeout: 60
+
+- action: chromium_get_history
+  output_file: chrome_history.json
+  browser_path: /usr/bin/google-chrome-stable
+  profile_path: ~/.config/google-chrome/Default
+
+- action: write_akf_bundle
+  name: my_scenario_bundle
+  output_dir: ./results
+
+- action: render_pdf
+  input_dir: ./results
+  output_file: scenario_report.pdf

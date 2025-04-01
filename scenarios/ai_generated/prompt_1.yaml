@@ -1,0 +1,58 @@
+name: Browser Usage Scenario
+description: A user visits news and entertainment websites with different browsers and powers the computer multiple times.
+author: Your Name
+seed: "1234"
+libraries:
+  - akflib.modules
+  - akf_windows.modules
+
+actions:
+  # Action 1: Start the virtual machine
+  - name: Power on the virtual machine
+    module: vbox_start_machine
+
+  # Action 2: Visit news-related websites with Microsoft Edge
+  - name: Visit news sites using Microsoft Edge
+    module: chromium_visit_urls
+    args:
+      browser: "msedge"
+      urls:
+        - "https://www.news.com"
+        - "https://www.nytimes.com"
+
+  # Action 3: Power off the virtual machine
+  - name: Power off the virtual machine
+    module: vbox_stop_machine
+
+  # Action 4: Restart the virtual machine and visit news sites again
+  - name: Restart the virtual machine
+    module: vbox_start_machine
+
+  # Action 5: Visit entertainment-related websites with Google Chrome
+  - name: Visit entertainment sites using Google Chrome
+    module: chromium_visit_urls
+    args:
+      browser: "chromium"
+      urls:
+        - "https://www.entertainment.com"
+        - "https://www.imdb.com"
+
+  # Action 6: Power off the virtual machine again
+  - name: Power off the virtual machine again
+    module: vbox_stop_machine
+
+  # Action 7: Restart the virtual machine and visit sites one more time
+  - name: Restart the virtual machine for the final time
+    module: vbox_start_machine
+
+  # Action 8: Visit news-related websites once more with Microsoft Edge
+  - name: Final visit to news sites using Microsoft Edge
+    module: chromium_visit_urls
+    args:
+      browser: "msedge"
+      urls:
+        - "https://www.news.com"
+
+  # Action 9: Power off the virtual machine for the last time
+  - name: Final power off of the virtual machine
+    module: vbox_stop_machine

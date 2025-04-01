@@ -1,0 +1,1 @@
+This folder contains prompts and responses from deepseek-r1:32b that were intended to generate valid declarative AKF scenarios. All generated scenarios contain errors and will not run without modification, but are clearly consistent with the requested "theme" or goals.
