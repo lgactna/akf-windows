@@ -22,7 +22,7 @@ actions:
   - name: Start the virtual machine
     module: akflib.modules.vbox.VBoxStartMachineModule
 
-  # Visit a website using Mcirosoft Edge. A temporary instance of the Chromium
+  # Visit a website using Microsoft Edge. A temporary instance of the Chromium
   # subservice API is created for the lietime of this module.
   - name: Visit a single website
     module: chromium_visit_urls
