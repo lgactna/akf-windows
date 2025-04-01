@@ -16,7 +16,7 @@ libraries:
 actions:
   # Create a new CASE bundle and start a virtual machine.
   - name: Instantiate a hypervisor object tied to a specific virtual machine
-    module: akflib.modules.vbox.VBoxCreateModule
+    module: vbox_start
     args:
       machine_name: "akf-windows-1"
   - name: Start the virtual machine
@@ -25,7 +25,7 @@ actions:
   # Visit a website using Mcirosoft Edge. A temporary instance of the Chromium
   # subservice API is created for the lietime of this module.
   - name: Visit a single website
-    module: akf_windows.modules.chromium.ChromiumVisitURLsModule
+    module: chromium_visit_urls
     args:
       browser: "msedge"
       urls: 
@@ -33,11 +33,11 @@ actions:
 
   # Stop the virtual machine and export the virtual machine to a disk image.
   - name: Stop the virtual machine
-    module: akflib.modules.vbox.VBoxStopMachineModule
+    module: vbox_stop_machine
     args:
       force: false
   - name: Export the virtual machine to a disk image
-    module: akflib.modules.vbox.VBoxCreateDiskImageModule
+    module: vbox_create_disk_image
     args:
       output_path: "C:/Users/user/Desktop/akf-windows_1.raw"
       image_format: "raw"
