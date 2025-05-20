@@ -38,3 +38,6 @@ profile = "black"
 [tool.uv.sources]
 akflib = { git = "https://github.com/lgactna/akflib.git" }
 caselib = { git = "https://github.com/lgactna/CASE-pydantic" }
+
+[tool.uv.workspace]
+members = ["scenarios/fsidi/ransomware"]

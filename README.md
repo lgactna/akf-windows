@@ -11,8 +11,7 @@
 To get a suitable Windows virtual machine running for AKF, do the following:
 - Install Vagrant and Virtualbox
 - `uv pip install pyinstaller`
-- Build the agent executable with `pyinstaller --onefile --paths=.venv/Lib/site-packages src/akf_windows/server/__init__.py`
-    - In the future, this may be downloaded from GitHub releases, but this isn't currently the case
+- Build the agent executable with `pyinstaller --onefile -n agent.exe --paths=.venv/Lib/site-packages src/akf_windows/server/__init__.py`
 - `vagrant up`, wait for the machine to be created
     - If Vagrant times out, you can increase the timeout limit or just run it again
 - Clone the resulting machine as many times as desired
@@ -43,13 +42,14 @@ python scenarios/sample.py
 
 ## PyInstaller
 
-Sometimes it'll complain that `akflib` can't be found, probably because of my local environment:
+To generate the agent binary:
 ```
-pyinstaller --onefile --paths=.venv/Lib/site-packages src/akf_windows/server/__init__.py
+pyinstaller --onefile -n agent.exe --paths=.venv/Lib/site-packages src/akf_windows/server/__init__.py
 ```
 
 The above command, run from the root of this repository, should work and generate `__init__.exe`. Ensure all of the following are true:
 - `pyinstaller` is installed in the venv
 - The venv is activated
+- You've installed the VirtualBox SDK
 
-See [`black`'s GitHub Action](https://github.com/psf/black/blob/main/.github/workflows/upload_binary.yml) for auto-binary uploads on release.
+The VirtualBox SDK cannot be redistributed with this project under the terms of the VirtualBox Extension Pack, so a pre-built agent cannot be provided.
