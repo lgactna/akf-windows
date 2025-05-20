@@ -65,6 +65,11 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     New-LocalUser -Name "user" -Password (ConvertTo-SecureString "user" -AsPlainText -Force)
     Add-LocalGroupMember -Group "Administrators" -Member "user"
+    
+    # Set the password to never expire
+    Set-LocalUser -Name "user" -PasswordNeverExpires $true
+    
+    Write-Host "User 'user' created with password that never expires"
   SHELL
   
   # Configure automatic login for the user
@@ -117,8 +122,7 @@ Vagrant.configure("2") do |config|
   SHELL
 
   # Copy agent.exe from host to guest
-  # TODO: Download from latest GitHub release instead of copying from host
-  config.vm.provision "file", source: "dist/__init__.exe", destination: "C:/agent.exe"
+  config.vm.provision "file", source: "dist/agent.exe", destination: "C:/agent.exe"
 
   # Run agent.exe on user login instead of system startup (makes the console visible)
   config.vm.provision "shell", inline: <<-SHELL
