@@ -33,9 +33,9 @@ jobs:
 
       - name: Install dependencies and PyInstaller
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install .
-          python -m pip install pyinstaller
+          python -m pip install --upgrade pip wheel uv
+          uv install . --system
+          uv install pyinstaller --system
 
       - name: Build executable with PyInstaller
         run: >
