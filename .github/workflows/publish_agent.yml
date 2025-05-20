@@ -4,9 +4,8 @@
 name: Publish agent
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  release:
+    types: [published]
 
 permissions:
   contents: write # actions/upload-release-asset needs this.
