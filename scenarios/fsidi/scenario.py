@@ -27,7 +27,7 @@ from akf_windows.api.autogui import PyAutoGuiServiceAPI
 from akf_windows.api.chromium import ChromiumServiceAPI
 
 # Change this based on what you've named the resulting VirtualBox machine.
-MACHINE_NAME = "akf-windows-4"
+MACHINE_NAME = "akf-windows-7"
 
 # Set up logging
 logging.basicConfig(
@@ -102,6 +102,9 @@ with ChromiumServiceAPI.auto_connect(vbox_obj.get_maintenance_ip()) as chromium_
 # example, this is how we'd use PyAutoGUI to do it.
 logger.info("Running ransomware")
 with PyAutoGuiServiceAPI.auto_connect(vbox_obj.get_maintenance_ip()) as autogui_service:
+    # we aren't doing anything with the mouse, so the failsafe isn't necessary
+    autogui_service.pyautogui.FAILSAFE = False
+    
     autogui_service.pyautogui.hotkey("win", "e")
     time.sleep(2)
 
@@ -124,7 +127,10 @@ with PyAutoGuiServiceAPI.auto_connect(vbox_obj.get_maintenance_ip()) as autogui_
     autogui_service.pyautogui.press("enter")
     time.sleep(2)
 
-# Collect volatile memory
+# Actually let the ransomware run
+time.sleep(60)
+
+# Collect volatile memory (hopefully the ransomware is still running)
 logger.info("Creating memory dump")
 vbox_obj.create_memory_dump(Path("memory.dmp"))
 

