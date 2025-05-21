@@ -9,7 +9,7 @@ uv sync
 
 To generate the ransomware executable (which must be done on a Windows machine):
 ```
-pyinstaller -F src/encrypt.py
+pyinstaller -F src/encrypt.py -n cats.exe
 ```
 
 This is a destructive operation. Don't run this on your own machine!

