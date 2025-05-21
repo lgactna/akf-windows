@@ -12,6 +12,7 @@ repos:
         - git+https://github.com/lgactna/akflib.git@a28e8e5331a7b89ed1cd752ae04334c070c7055b
         - pytest-playwright
         - rpyc
+        - types-requests
 - repo: https://github.com/pycqa/flake8
   rev: 5.0.4
   hooks:

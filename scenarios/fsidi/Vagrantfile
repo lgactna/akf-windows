@@ -6,7 +6,6 @@
 # - Disable BitLocker, if enabled (it shouldn't be)
 # - Copy agent.exe from the host to the guest
 # - Allow all inbound and outbound traffic to agent.exe through Windows Firewall
-# - Disable Windows Time synchronization and use only BIOS/hardware clock
 # - Run agent.exe on startup
 # - Disable Microsoft Edge SmartScreen and download warnings
 #
@@ -142,46 +141,6 @@ Vagrant.configure("2") do |config|
   # config.vm.provision "shell", inline: <<-SHELL
   #   Start-Process -FilePath "C:\\agent.exe"
   # SHELL
-  
-  # Disable Windows Time Synchronization and use only BIOS/hardware clock
-  config.vm.provision "shell", inline: <<-SHELL
-    Write-Host "Disabling Windows Time synchronization services..."
-    
-    # Stop and disable the Windows Time service
-    Stop-Service -Name "W32Time" -Force
-    Set-Service -Name "W32Time" -StartupType Disabled
-    
-    # Disable automatic time sync via registry
-    $timeZoneKey = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\tzautoupdate"
-    if (Test-Path $timeZoneKey) {
-      Set-ItemProperty -Path $timeZoneKey -Name "Start" -Value 4
-    }
-    
-    # Disable all internet time synchronization
-    $internetTimeKey = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\W32Time\\Parameters"
-    if (Test-Path $internetTimeKey) {
-      Set-ItemProperty -Path $internetTimeKey -Name "Type" -Value "NoSync"
-    }
-    
-    # Disable automatic time zone updates
-    $timeSettingsKey = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location"
-    if (Test-Path $timeSettingsKey) {
-      Set-ItemProperty -Path $timeSettingsKey -Name "Value" -Value "Deny" -Type String
-    }
-    
-    # Disable "Set time automatically" and "Set time zone automatically" in Settings
-    $autoTimeKey = "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\W32Time\\Parameters"
-    if (Test-Path $autoTimeKey) {
-      New-ItemProperty -Path $autoTimeKey -Name "NtpServer" -Value "" -PropertyType String -Force
-    }
-    
-    $timeSettings = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\DateTime\\Servers"
-    if (Test-Path $timeSettings) {
-      Set-ItemProperty -Path $timeSettings -Name "(Default)" -Value "0" -Type String
-    }
-    
-    Write-Host "Windows Time synchronization has been disabled. System will now rely only on BIOS/hardware clock."
-  SHELL
 
   # Disable Microsoft Edge SmartScreen and download warnings
   config.vm.provision "shell", inline: <<-SHELL
