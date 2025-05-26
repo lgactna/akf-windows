@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
             # Write as <file>.enc
             print(f"Encrypting {file}...")
-            with open(file.with_suffix(".enc"), "wb") as fp2:
+            with open(file.with_suffix(f"{file.suffix}.enc"), "wb") as fp2:
                 fp2.write(ciphertext)
 
             # Delete the original file

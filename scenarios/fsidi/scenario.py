@@ -27,7 +27,7 @@ from akf_windows.api.autogui import PyAutoGuiServiceAPI
 from akf_windows.api.chromium import ChromiumServiceAPI
 
 # Change this based on what you've named the resulting VirtualBox machine.
-MACHINE_NAME = "akf-windows-7"
+MACHINE_NAME = "akf-windows-fsidi-2"
 
 # Set up logging
 logging.basicConfig(
@@ -55,6 +55,10 @@ logger.info("Starting the VM and enabling network capturing")
 vbox_obj.start_network_capture(Path("traffic.pcap"))
 vbox_obj.start_vm(wait_for_guest_additions=True)
 
+# This can occasionally fail with an agent-side error that looks like this:
+# "Assertion failed: new_time >= loop->time..."
+# This appears to be related to bad time synchronization, though I have been unable
+# to find a reliable solution or reproduction steps.
 with ChromiumServiceAPI.auto_connect(vbox_obj.get_maintenance_ip()) as chromium_service:
     # Visit a list of websites from a file with some jitter, and save their screenshots
     # to the Downloads folder
@@ -82,14 +86,14 @@ with ChromiumServiceAPI.auto_connect(vbox_obj.get_maintenance_ip()) as chromium_
         vbox_obj.get_maintenance_ip()
     ) as chromium_service:
         page.goto("https://www.google.com/search?q=free+cat+wallpapers")
-        page.goto("https://pastebin.com/C7jhGFSr")
+        page.goto("https://pastebin.com/2jHBY4R3")
         page.goto(
-            "https://drive.google.com/file/d/1EdYkhP0C6ouo1sh2N8JAUerNiHd5LYFK/view?usp=sharing"
+            "https://drive.google.com/file/d/1I9I8reRi4DzszpPvABbeS94gs9rLiypx/view?usp=sharing"
         )
         # Manually visit next page - we won't click on the link since it opens a new tab,
         # but as far as artifacts go, the effect is the largely the same
         page.goto(
-            "https://drive.usercontent.google.com/download?id=1EdYkhP0C6ouo1sh2N8JAUerNiHd5LYFK&export=download&authuser=0"
+            "https://drive.usercontent.google.com/download?id=1I9I8reRi4DzszpPvABbeS94gs9rLiypx&export=download&authuser=0"
         )
         with page.expect_download() as download_info:
             page.locator("[type='submit']").click()
@@ -102,9 +106,8 @@ with ChromiumServiceAPI.auto_connect(vbox_obj.get_maintenance_ip()) as chromium_
 # example, this is how we'd use PyAutoGUI to do it.
 logger.info("Running ransomware")
 with PyAutoGuiServiceAPI.auto_connect(vbox_obj.get_maintenance_ip()) as autogui_service:
-    # we aren't doing anything with the mouse, so the failsafe isn't necessary
-    autogui_service.pyautogui.FAILSAFE = False
-    
+    # Make sure the mouse isn't in the corner to prevent the failsafe from triggering
+    autogui_service.pyautogui.moveTo(250, 250)
     autogui_service.pyautogui.hotkey("win", "e")
     time.sleep(2)
 
