@@ -1,7 +1,7 @@
 
 ## Installation
 - Install Python 3.11+
-- Install git
+- Install git (to install packages not listed on PyPI)
 - Install `uv` with `pip install uv` (recommended)
 - Run `uv venv` and `uv pip install .` 
 - Download the VirtualBox SDK from [https://www.virtualbox.org/wiki/Downloads](https://www.virtualbox.org/wiki/Downloads), then *from the virtual environment*, run `python vboxapisetup.py install` inside the `/install` folder of the decompressed SDK.
@@ -18,7 +18,7 @@ To get a suitable Windows virtual machine running for AKF, do the following:
 
 If you don't like Vagrant, you can also set up your own Windows machine. Manually copy the agent executable and have it run on startup. It is strongly recommended that you have auto-logon enabled.
 
-You can also install this library with `uv pip install git+https://github.com/lgactna/akf-windows.git`, then run `akf-agent` to start the agent script. This assumes you have Python installed on the target machine.
+You can also manually install the agent with `uv pip install git+https://github.com/lgactna/akf-windows.git`, then run `akf-agent` to start the agent script. This assumes you have Python installed on the target machine.
 
 ## Demos
 After you've followed the steps above, you can run some of the demos from the root of the repo:
