@@ -12,6 +12,10 @@ dependencies = [
     "pytest-playwright>=0.6.2",
     "rpyc>=6.0.1",
 ]
+license = "MIT"
+license-files = [
+    "LICENSE",
+]
 
 [project.scripts]
 akf-agent = "akf_windows.server:main"
@@ -41,3 +45,6 @@ caselib = { git = "https://github.com/lgactna/CASE-pydantic" }
 
 [tool.uv.workspace]
 members = ["scenarios/fsidi/ransomware"]
+
+[tool.licensecheck]
+license = "BSD-3-Clause"               # Specify the project license explicitly
