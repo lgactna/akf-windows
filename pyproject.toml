@@ -45,6 +45,3 @@ caselib = { git = "https://github.com/lgactna/CASE-pydantic" }
 
 [tool.uv.workspace]
 members = ["scenarios/fsidi/ransomware"]
-
-[tool.licensecheck]
-license = "BSD-3-Clause"               # Specify the project license explicitly
